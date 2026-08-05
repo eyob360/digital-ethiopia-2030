@@ -1,13 +1,15 @@
 # Validation — Instructions
 
-Validation closes the loop: it checks that a completed work order actually satisfies its requirements. Prefer a **fresh agent session** (or different agent) than the one that implemented — implementers grade themselves too kindly.
+Validation closes the loop — and its stance is **refutation, not confirmation**: your job is to try to make the work fail, and document why you couldn't. Evidence must match the kind of claim: **behavioral** claims (enforces, limits, falls back, redirects, meets a standard) pass only on **executed evidence** — something that ran and could have come out otherwise: a test whose assertions can fail, command output, observed behavior. **Structural** claims (a field exists, a config declares, a call is absent) may pass on inspection — label the verdict "by inspection." When a required execution can't be performed (missing tooling, no environment), that criterion is `blocked` — not passed — the WO stays open, and the user decides.
+
+Prefer a **fresh agent session** (or different agent) than the one that implemented — implementers grade themselves too kindly.
 
 ## Process
 
 For a work order with status `done` (for maintenance WOs — `implements: none` — verify the testing plan and summary objective instead of ACs):
 
 1. Re-read the work order and each acceptance criterion it implements.
-2. Verify each criterion against the actual code and by running the testing plan. Cite evidence (file, test, or observed behavior) per criterion.
+2. Attack each criterion: run the testing plan, probe edge cases, and check the tests themselves assert something that could fail. Cite the executed evidence per criterion (test run, command output, observed behavior — with file:line).
 3. Check for drift: does the implementation contradict the BRD, blueprint, or **any recorded decision** (check `../DECISIONS.md` beyond just those cited in the work order — e.g. dependency and convention choices)? If so, report to the user — don't silently fix either side.
 4. Check for duplication: do the new units overlap an existing registry entry — or each other? Same-WO duplication is the common agent failure; compare the WO's new units against the registry *and* among themselves.
 5. Write a report from the template below, saved in this folder as `VAL-WO-XXXX.md` (one report per work order — on re-validation, update the same file with the new date and result; likewise, when a hold or failure noted in a report is later resolved, update the report so it never contradicts current state). If everything passes: set the WO to `validated`, update `../STATE.md`, and when all of a BRD's requirements are validated, update the BRD's status too.

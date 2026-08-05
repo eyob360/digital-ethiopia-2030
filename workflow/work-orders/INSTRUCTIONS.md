@@ -2,6 +2,8 @@
 
 A work order is a **self-contained implementation ticket**: an agent must be able to execute it without reading anything outside the files it links. Scope one to a single agent session's worth of work — split big features into several.
 
+Default operating mode: **one WO per fresh agent session**. Long-running chats accumulate stale rule memory (especially after context compaction) and stop re-reading the files; WOs are self-contained precisely so fresh sessions cost nothing. If a fresh session struggles to execute a WO, that's a signal the WO is under-specified — fix the WO, not the session length.
+
 ## Process
 
 1. Write it from the approved BRD(s) — and blueprint, if one exists — using the template below. A WO's scope may span BRDs: scan the approved BRDs in `../STATE.md` and cite **every** requirement the scope touches, not just the BRD that prompted the ticket. Copy in the relevant requirement IDs and acceptance criteria — don't just link them.

@@ -57,8 +57,8 @@ Optional detour: `draft` → `exploring` → `approved` (see below).
 Gate criteria:
 
 - `approved`: user explicitly approved; Open questions empty; every requirement has numbered ACs; `source` cited; no unresolved placeholders ("TBD", "etc.", "as needed")
-- `implemented`: every requirement covered by a `done` work order
-- `validated`: every requirement validated with a passing report
+- `implemented`: every requirement ID — `R*` and `N*` alike — covered by a `done` work order
+- `validated`: every requirement ID — `R*` and `N*` alike — validated with a passing report
 
 ## Revisions
 
