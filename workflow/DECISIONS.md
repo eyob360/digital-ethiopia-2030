@@ -11,5 +11,6 @@ Index only — one line per decision. Full context lives in `decisions/`. Check 
 - [D-0007](decisions/D-0007-fallback-search-provider.md) — Use Tavily behind a configurable fallback search-provider abstraction
 - [D-0008](decisions/D-0008-url-domain-filtering.md) — Use configurable URL domain filtering for fallback search results
 - [D-0009](decisions/D-0009-raw-document-deduplication.md) — Hash content before storing new raw documents
+- [D-0010](decisions/D-0010-dashboard-auth-roles.md) — Require login with operator and viewer roles
 
 <!-- - [D-0001](decisions/D-0001-example.md) — Chose Postgres over SQLite for production parity -->

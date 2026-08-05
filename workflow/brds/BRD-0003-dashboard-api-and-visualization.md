@@ -15,6 +15,8 @@ This feature exposes processed KPI observations to the web dashboard and present
 - Time series: historical observations for a KPI.
 - Review flag: marker applied to medium-confidence observations that need analyst attention.
 - Target progress: comparison of the latest observation value against the KPI target value.
+- Operator: authenticated user who can manage KPI definitions and operational controls.
+- Viewer: authenticated user who can view dashboard data but cannot change configuration.
 
 ## Requirements
 
@@ -27,7 +29,17 @@ As a dashboard frontend, I want an API for processed KPI data so that visualizat
 - AC3: When API data is returned, the backend shall include source URL, observed date, created date, AI confidence, and review flag where available.
 - AC4: When API data is returned, the frontend shall not be responsible for heavy business logic such as confidence thresholding, normalization, or latest-observation selection.
 
-### BRD-0003.R2: Latest KPI view
+### BRD-0003.R2: Authentication and roles
+As a technical operator, I want dashboard access controlled by role so that operational controls are protected while read-only users can still monitor progress.
+
+**Acceptance criteria:**
+- AC1: When a user accesses the MVP, the system shall require login before showing dashboard or admin data.
+- AC2: When an `operator` is authenticated, the system shall allow KPI administration and operational controls.
+- AC3: When a `viewer` is authenticated, the system shall allow read-only dashboard access.
+- AC4: When a `viewer` attempts KPI administration or operational control actions, the system shall deny the action.
+- AC5: When an unauthenticated request is made to protected dashboard or admin APIs, the system shall deny the request.
+
+### BRD-0003.R3: Latest KPI view
 As a decision maker, I want to see the latest value for each KPI so that I can quickly assess current Digital Ethiopia 2030 progress.
 
 **Acceptance criteria:**
@@ -35,7 +47,7 @@ As a decision maker, I want to see the latest value for each KPI so that I can q
 - AC2: When a KPI has at least one observation, the dashboard shall display its latest value, unit, region, observed date, and confidence/review status.
 - AC3: When a KPI has no observations, the dashboard shall display an empty state for that KPI.
 
-### BRD-0003.R3: Historical KPI view
+### BRD-0003.R4: Historical KPI view
 As a program analyst, I want to inspect observation history so that I can evaluate KPI trends and changes over time.
 
 **Acceptance criteria:**
@@ -43,7 +55,7 @@ As a program analyst, I want to inspect observation history so that I can evalua
 - AC2: When historical observations are shown, the dashboard shall preserve source traceability for each observation.
 - AC3: When historical observations contain review-flagged values, the dashboard shall visibly distinguish them from auto-accepted values.
 
-### BRD-0003.R4: Target progress
+### BRD-0003.R5: Target progress
 As a decision maker, I want to compare current KPI values with Digital Ethiopia 2030 targets so that progress is visible.
 
 **Acceptance criteria:**
@@ -62,7 +74,5 @@ As a decision maker, I want to compare current KPI values with Digital Ethiopia 
 - Multi-language processing.
 
 ## Open questions
-- Which dashboard roles are required for MVP, if any?
-- Should the MVP include a login/auth flow?
 - Should review-flagged observations only be visible, or should analysts be able to approve/reject them in the first release?
 - What visual pages are required beyond overview and KPI detail?
