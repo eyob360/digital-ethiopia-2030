@@ -35,6 +35,4 @@ Last drift audit: b379055 (2026-08-05)
 
 ## Blocked / Needs user input
 
-- WO-0006 — validated (VAL-WO-0006 pass on re-validation 3); branch `wo-0006-n8n-ingestion-workflow` awaits user review before merge (pipeline lock/budget core rules + schema migration)
-
 <!-- - WO-0003 — waiting on decision about payment provider -->
