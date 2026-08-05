@@ -23,7 +23,7 @@ Last drift audit: none
 ## Work Orders
 
 - [WO-0001](work-orders/WO-0001-foundation-scaffold.md) — Foundation scaffold (BP-0001) — status: validated
-- [WO-0002](work-orders/WO-0002-data-auth-foundation.md) — Data and auth foundation (BRD-0001, BRD-0003, BP-0001) — status: done
+- [WO-0002](work-orders/WO-0002-data-auth-foundation.md) — Data and auth foundation (BRD-0001, BRD-0003, BP-0001) — status: validated
 - [WO-0003](work-orders/WO-0003-deterministic-pipeline-rules.md) — Deterministic pipeline rules (BRD-0001, BRD-0002, BP-0001) — status: ready
 - [WO-0004](work-orders/WO-0004-dashboard-api.md) — Dashboard and admin APIs (BRD-0001, BRD-0002, BRD-0003, BP-0001) — status: ready
 - [WO-0005](work-orders/WO-0005-dashboard-ui.md) — Dashboard UI (BRD-0003, BP-0001) — status: ready
@@ -33,5 +33,7 @@ Last drift audit: none
 <!-- - [WO-0001](work-orders/WO-0001-example.md) — Example ticket (BRD-0001) — status: draft -->
 
 ## Blocked / Needs user input
+
+- WO-0002 — validated (VAL-WO-0002 pass); branch `wo-0002-data-auth-foundation` awaits user review before merge (touches auth)
 
 <!-- - WO-0003 — waiting on decision about payment provider -->

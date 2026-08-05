@@ -5,7 +5,7 @@ implements: [BRD-0001.R1, BRD-0001.R3, BRD-0003.R2]
 blueprint: BP-0001
 depends-on: [WO-0001]
 units-touched: [UNIT-0003, UNIT-0004, UNIT-0005, UNIT-0006, UNIT-0007, UNIT-0008, UNIT-0009]
-status: done
+status: validated
 ---
 
 # WO-0002: Data and auth foundation
