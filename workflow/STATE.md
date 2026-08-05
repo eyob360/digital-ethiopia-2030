@@ -26,7 +26,7 @@ Last drift audit: b379055 (2026-08-05)
 - [WO-0002](work-orders/WO-0002-data-auth-foundation.md) — Data and auth foundation (BRD-0001, BRD-0003, BP-0001) — status: validated
 - [WO-0003](work-orders/WO-0003-deterministic-pipeline-rules.md) — Deterministic pipeline rules (BRD-0001, BRD-0002, BP-0001) — status: validated
 - [WO-0004](work-orders/WO-0004-dashboard-api.md) — Dashboard and admin APIs (BRD-0001, BRD-0002, BRD-0003, BP-0001) — status: validated
-- [WO-0005](work-orders/WO-0005-dashboard-ui.md) — Dashboard UI (BRD-0003, BP-0001) — status: done
+- [WO-0005](work-orders/WO-0005-dashboard-ui.md) — Dashboard UI (BRD-0003, BP-0001) — status: validated
 - [WO-0006](work-orders/WO-0006-n8n-ingestion-workflow.md) — n8n ingestion workflow (BRD-0002, BP-0001) — status: ready
 - [WO-0007](work-orders/WO-0007-integration-hardening.md) — Integration hardening and operations docs (BP-0001) — status: ready
 - [WO-0008](work-orders/WO-0008-pre-dashboard-maintenance-cleanup.md) — Pre-dashboard maintenance cleanup — status: validated
@@ -34,5 +34,7 @@ Last drift audit: b379055 (2026-08-05)
 <!-- - [WO-0001](work-orders/WO-0001-example.md) — Example ticket (BRD-0001) — status: draft -->
 
 ## Blocked / Needs user input
+
+- WO-0005 — validated (VAL-WO-0005 pass); branch `wo-0005-dashboard-ui` awaits user review before merge (touches auth middleware and role-gated pages)
 
 <!-- - WO-0003 — waiting on decision about payment provider -->
