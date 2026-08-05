@@ -38,3 +38,6 @@ Validated by a session that did not implement the work order. Code-level checks 
 
 ## Result
 Work order returned to `in-progress`. Failures 1–3 must be fixed (or decision-resolved) before re-validation; failure 4 needs a fix or a recorded user decision.
+
+## Resolution note
+Implementation follow-up on the WO-0006 branch addressed the reported graph failures: fallback now uses `fallbackUsed` and cannot loop, malformed/empty terminal paths route to completion, `Apply Document Budget` enforces the 10-document hourly cap, and priority URLs are attempted sequentially so a stored priority observation prevents fallback for that KPI. Awaiting fresh re-validation; this report's `result: fail` remains the original validation outcome until then.

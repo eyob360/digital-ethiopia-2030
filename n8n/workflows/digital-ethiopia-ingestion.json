@@ -74,7 +74,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const urls = ($json.kpi.sourceUrls ?? []).slice(0, 5);\nreturn [{ json: { ...$json, sourceType: 'priority', candidateUrls: urls, needsFallback: urls.length === 0 } }];"
+        "jsCode": "const urls = ($json.kpi.sourceUrls ?? []).slice(0, 5);\nreturn [{ json: { ...$json, sourceType: 'priority', fallbackUsed: false, candidateUrls: urls, needsFallback: urls.length === 0 } }];"
       },
       "id": "priority-urls",
       "name": "Priority URLs First",
@@ -101,13 +101,40 @@
     },
     {
       "parameters": {
-        "jsCode": "return ($json.candidateUrls ?? []).slice(0, 5).map((url) => ({ json: { ...$json, url } }));"
+        "jsCode": "const priorityIndex = $json.priorityIndex ?? 0;\nconst url = ($json.candidateUrls ?? [])[priorityIndex];\nreturn url ? [{ json: { ...$json, url, sourceType: 'priority', priorityIndex, fallbackUsed: false } }] : [{ json: { ...$json, terminalReason: 'priority-urls-exhausted' } }];"
       },
       "id": "expand-priority-urls",
       "name": "Expand Priority URLs",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1320, -260]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst start = Number(items[0]?.json?.documentsProcessed ?? 0);\nconst remaining = Math.max(0, 10 - start);\nif (!items.length || remaining === 0) return [{ json: { ...(items[0]?.json ?? {}), terminalReason: 'document-budget-exhausted', fallbackUsed: true } }];\nreturn items.slice(0, remaining).map((item, index) => ({ json: { ...item.json, documentsProcessed: start + index + 1 } }));"
+      },
+      "id": "apply-document-budget",
+      "name": "Apply Document Budget",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1430, -80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.url}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has-url",
+      "name": "Has URL?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1500, -80]
     },
     {
       "parameters": {
@@ -126,13 +153,30 @@
     },
     {
       "parameters": {
-        "jsCode": "const rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...$json, rawText } }] : [];"
+        "jsCode": "const rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...$json, rawText } }] : [{ json: { ...$json, terminalReason: 'no-readable-text' } }];"
       },
       "id": "extract-readable-text",
       "name": "Extract Readable Text",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1760, -260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.rawText}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has-raw-text",
+      "name": "Has Raw Text?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1870, -260]
     },
     {
       "parameters": {
@@ -181,6 +225,60 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.fallbackUsed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "fallback-already-used",
+      "name": "Fallback Already Used?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2300, -80]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$json, fallbackUsed: true } }];"
+      },
+      "id": "mark-fallback-used",
+      "name": "Mark Fallback Used",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2520, 40]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.sourceType === 'priority' && (($json.priorityIndex ?? 0) + 1) < ($json.candidateUrls ?? []).length && !$json.fallbackUsed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "more-priority-urls",
+      "name": "More Priority URLs?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2410, -160]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$json, priorityIndex: ($json.priorityIndex ?? 0) + 1 } }];"
+      },
+      "id": "increment-priority-index",
+      "name": "Increment Priority Index",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2630, -220]
+    },
+    {
+      "parameters": {
         "method": "POST",
         "url": "https://api.openai.com/v1/responses",
         "sendHeaders": true,
@@ -208,13 +306,30 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return []; }\nif (typeof parsed?.relevant !== 'boolean' || typeof parsed?.confidence !== 'number') return [];\nreturn [{ json: { ...$json, relevance: parsed } }];"
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-relevance-json' } }]; }\nif (typeof parsed?.relevant !== 'boolean' || typeof parsed?.confidence !== 'number') return [{ json: { ...$json, terminalReason: 'invalid-relevance-json' } }];\nreturn [{ json: { ...$json, relevance: parsed } }];"
       },
       "id": "validate-relevance-json",
       "name": "Validate Relevance JSON",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [2640, -360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{typeof $json.relevance?.relevant === 'boolean'}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-relevance-json",
+      "name": "Has Relevance JSON?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2750, -360]
     },
     {
       "parameters": {
@@ -262,13 +377,30 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return []; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [];\nreturn [{ json: { kpiId: $json.kpi.id, rawDocumentId: $json.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: $json.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation } }];"
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }]; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }];\nreturn [{ json: { kpiId: $json.kpi.id, rawDocumentId: $json.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: $json.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation, fallbackUsed: $json.fallbackUsed } }];"
       },
       "id": "validate-extraction-json",
       "name": "Validate Extraction JSON",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [3300, -460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.kpiId}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has-extraction-json",
+      "name": "Has Extraction JSON?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3410, -460]
     },
     {
       "parameters": {
@@ -326,13 +458,30 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return []; }\nconst queries = Array.isArray(parsed?.queries) ? parsed.queries.filter((query) => typeof query === 'string' && query.trim()).slice(0, 5) : [];\nif (queries.length < 3 || queries.length > 5) return [];\nreturn [{ json: { ...$json, queries } }];"
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-query-json' } }]; }\nconst queries = Array.isArray(parsed?.queries) ? parsed.queries.filter((query) => typeof query === 'string' && query.trim()).slice(0, 5) : [];\nif (queries.length < 3 || queries.length > 5) return [{ json: { ...$json, terminalReason: 'invalid-query-json' } }];\nreturn [{ json: { ...$json, queries } }];"
       },
       "id": "validate-query-json",
       "name": "Validate Query JSON",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1540, 80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{Array.isArray($json.queries) && $json.queries.length >= 3}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-query-json",
+      "name": "Has Query JSON?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1650, 80]
     },
     {
       "parameters": {
@@ -390,7 +539,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return ($json.urls ?? []).slice(0, 5).map((item) => ({ json: { ...$json, url: item.url } }));"
+        "jsCode": "const urls = ($json.urls ?? []).slice(0, 5);\nreturn urls.length ? urls.map((item) => ({ json: { ...$json, url: item.url, sourceType: 'fallback', fallbackUsed: true } })) : [{ json: { ...$json, terminalReason: 'no-filtered-urls', fallbackUsed: true } }];"
       },
       "id": "expand-filtered-urls",
       "name": "Expand Filtered URLs",
@@ -452,13 +601,28 @@
       ]
     },
     "Expand Priority URLs": {
-      "main": [[{ "node": "Fetch Priority URL", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Apply Document Budget", "type": "main", "index": 0 }]]
+    },
+    "Apply Document Budget": {
+      "main": [[{ "node": "Has URL?", "type": "main", "index": 0 }]]
+    },
+    "Has URL?": {
+      "main": [
+        [{ "node": "Fetch Priority URL", "type": "main", "index": 0 }],
+        [{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]
+      ]
     },
     "Fetch Priority URL": {
       "main": [[{ "node": "Extract Readable Text", "type": "main", "index": 0 }]]
     },
     "Extract Readable Text": {
-      "main": [[{ "node": "Store Raw Document", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Has Raw Text?", "type": "main", "index": 0 }]]
+    },
+    "Has Raw Text?": {
+      "main": [
+        [{ "node": "Store Raw Document", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
     },
     "Store Raw Document": {
       "main": [[{ "node": "New Document?", "type": "main", "index": 0 }]]
@@ -466,26 +630,56 @@
     "New Document?": {
       "main": [
         [{ "node": "OpenAI Relevance Gate", "type": "main", "index": 0 }],
-        [{ "node": "OpenAI Query Generation", "type": "main", "index": 0 }]
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
       ]
+    },
+    "More Priority URLs?": {
+      "main": [
+        [{ "node": "Increment Priority Index", "type": "main", "index": 0 }],
+        [{ "node": "Fallback Already Used?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Increment Priority Index": {
+      "main": [[{ "node": "Expand Priority URLs", "type": "main", "index": 0 }]]
+    },
+    "Fallback Already Used?": {
+      "main": [
+        [{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }],
+        [{ "node": "Mark Fallback Used", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark Fallback Used": {
+      "main": [[{ "node": "OpenAI Query Generation", "type": "main", "index": 0 }]]
     },
     "OpenAI Relevance Gate": {
       "main": [[{ "node": "Validate Relevance JSON", "type": "main", "index": 0 }]]
     },
     "Validate Relevance JSON": {
-      "main": [[{ "node": "Relevant?", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Has Relevance JSON?", "type": "main", "index": 0 }]]
+    },
+    "Has Relevance JSON?": {
+      "main": [
+        [{ "node": "Relevant?", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
     },
     "Relevant?": {
       "main": [
         [{ "node": "OpenAI Structured Extraction", "type": "main", "index": 0 }],
-        [{ "node": "OpenAI Query Generation", "type": "main", "index": 0 }]
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
       ]
     },
     "OpenAI Structured Extraction": {
       "main": [[{ "node": "Validate Extraction JSON", "type": "main", "index": 0 }]]
     },
     "Validate Extraction JSON": {
-      "main": [[{ "node": "Store Observation", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Has Extraction JSON?", "type": "main", "index": 0 }]]
+    },
+    "Has Extraction JSON?": {
+      "main": [
+        [{ "node": "Store Observation", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
     },
     "Store Observation": {
       "main": [[{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]]
@@ -494,7 +688,13 @@
       "main": [[{ "node": "Validate Query JSON", "type": "main", "index": 0 }]]
     },
     "Validate Query JSON": {
-      "main": [[{ "node": "Tavily Search via App Provider", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Has Query JSON?", "type": "main", "index": 0 }]]
+    },
+    "Has Query JSON?": {
+      "main": [
+        [{ "node": "Tavily Search via App Provider", "type": "main", "index": 0 }],
+        [{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]
+      ]
     },
     "Tavily Search via App Provider": {
       "main": [[{ "node": "Filter Search URLs", "type": "main", "index": 0 }]]
@@ -503,7 +703,7 @@
       "main": [[{ "node": "Expand Filtered URLs", "type": "main", "index": 0 }]]
     },
     "Expand Filtered URLs": {
-      "main": [[{ "node": "Fetch Priority URL", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Apply Document Budget", "type": "main", "index": 0 }]]
     }
   },
   "settings": {

@@ -20,9 +20,11 @@ This folder contains the versioned n8n workflow source for WO-0006.
 2. Import `workflows/digital-ethiopia-ingestion.json` into n8n.
 3. Configure `APP_BASE_URL` and `OPENAI_API_KEY` in the n8n environment.
 4. Run manually once. The workflow starts the pipeline through `/api/ingestion/pipeline/runs`.
-5. If the lock is already held, the workflow exits without loading KPIs.
-6. If no KPI has a valid priority-source observation, the fallback branch requests OpenAI-generated queries, calls the app's Tavily-backed search abstraction, filters candidate URLs, fetches at most five URLs, stores only new raw documents, runs OpenAI relevance/extraction, and persists accepted observations through `/api/ingestion/observations`.
-7. The final node always calls `/api/ingestion/pipeline/runs` with `action=complete` after processing so the lock is released.
+5. If the lock is already held, the workflow exits without loading KPIs because it did not acquire the lock.
+6. When a KPI has priority URLs, the workflow tries them sequentially. A stored observation completes the run path for that KPI; failed priority URLs advance to the next priority URL, and fallback begins only after the final priority URL fails.
+7. If a branch enters fallback, it sets `fallbackUsed=true` before requesting OpenAI-generated queries. Duplicate, irrelevant, invalid, or empty fallback branches do not re-enter fallback.
+8. Before any document fetch, the workflow passes URL items through `Apply Document Budget`, which tracks `documentsProcessed` and emits at most 10 document branches for the hourly run.
+9. Terminal paths that can otherwise produce zero surviving items route to `Complete Pipeline Run`, which calls `/api/ingestion/pipeline/runs` with `action=complete` so an acquired lock is released.
 
 ## Retry Policy
 HTTP fetches, OpenAI calls, and app/database-backed ingestion API calls use n8n node retries: 5 tries with 2 seconds between tries. Retry is configured at the node level so earlier successful nodes in the branch are not rerun.
@@ -31,4 +33,5 @@ HTTP fetches, OpenAI calls, and app/database-backed ingestion API calls use n8n 
 - The pipeline runs hourly.
 - The app batch loader caps KPI definitions at 10 per run.
 - Candidate URL filtering caps source URLs at 5 per KPI.
+- `Apply Document Budget` caps document fetch/store branches at 10 per hourly run.
 - The workflow has no vector database, queue, warehouse, real-time stream, paid data API beyond configured providers, custom ML model, multilingual processing, or advanced entity resolution.

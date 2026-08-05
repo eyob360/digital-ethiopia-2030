@@ -29,6 +29,10 @@ describe("n8n ingestion workflow export", () => {
         "Expand KPI Batch",
         "Priority URLs First",
         "Fetch Priority URL",
+        "Apply Document Budget",
+        "Fallback Already Used?",
+        "More Priority URLs?",
+        "Increment Priority Index",
         "OpenAI Query Generation",
         "Tavily Search via App Provider",
         "Filter Search URLs",
@@ -93,13 +97,41 @@ describe("n8n ingestion workflow export", () => {
     expect(JSON.stringify(workflow.connections["Has Priority URLs?"])).toContain(
       "OpenAI Query Generation",
     );
-    expect(JSON.stringify(workflow.connections["New Document?"])).toContain(
-      "OpenAI Query Generation",
+    expect(outgoingNodeNames("New Document?")).not.toContain("OpenAI Query Generation");
+    expect(outgoingNodeNames("Relevant?")).not.toContain("OpenAI Query Generation");
+    expect(outgoingNodeNames("New Document?")).toContain("More Priority URLs?");
+    expect(outgoingNodeNames("Relevant?")).toContain("More Priority URLs?");
+    expect(outgoingNodeNames("More Priority URLs?")).toEqual(
+      expect.arrayContaining(["Increment Priority Index", "Fallback Already Used?"]),
     );
-    expect(JSON.stringify(workflow.connections["Relevant?"])).toContain("OpenAI Query Generation");
+    expect(outgoingNodeNames("Increment Priority Index")).toEqual(["Expand Priority URLs"]);
+    expect(outgoingNodeNames("Fallback Already Used?")).toEqual(
+      expect.arrayContaining(["Complete Pipeline Run", "Mark Fallback Used"]),
+    );
+    expect(outgoingNodeNames("Mark Fallback Used")).toEqual(["OpenAI Query Generation"]);
     expect(JSON.stringify(workflow.connections["Store Observation"])).toContain(
       "Complete Pipeline Run",
     );
+  });
+
+  it("caps document fetch branches and routes malformed terminal paths to completion", () => {
+    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("10 - start");
+    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("documentsProcessed");
+    expect(outgoingNodeNames("Expand Priority URLs")).toEqual(["Apply Document Budget"]);
+    expect(outgoingNodeNames("Expand Filtered URLs")).toEqual(["Apply Document Budget"]);
+    expect(outgoingNodeNames("Apply Document Budget")).toEqual(["Has URL?"]);
+    expect(outgoingNodeNames("Has URL?")).toEqual(
+      expect.arrayContaining(["Fetch Priority URL", "Complete Pipeline Run"]),
+    );
+
+    for (const nodeName of ["Has Raw Text?", "Has Relevance JSON?", "Has Extraction JSON?"]) {
+      expect(outgoingNodeNames(nodeName)).toEqual(expect.arrayContaining(["More Priority URLs?"]));
+    }
+
+    expect(outgoingNodeNames("Has Query JSON?")).toEqual(
+      expect.arrayContaining(["Tavily Search via App Provider", "Complete Pipeline Run"]),
+    );
+    expect(JSON.stringify(workflow.nodes)).not.toContain("return []");
   });
 
   it("documents strict mocked AI/search response shapes", () => {
@@ -140,6 +172,13 @@ function findNode(name: string) {
   }
 
   return node;
+}
+
+function outgoingNodeNames(name: string) {
+  const connection = workflow.connections[name] as
+    { main?: Array<Array<{ node: string }>> } | undefined;
+
+  return connection?.main?.flatMap((branch) => branch.map((target) => target.node)) ?? [];
 }
 
 function readJson<T = unknown>(path: string): T {
