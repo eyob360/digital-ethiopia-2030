@@ -1,8 +1,9 @@
 import type { PrismaClient } from "@prisma/client";
 import { createContentHash } from "../lib/pipeline";
 import { prisma } from "../lib/prisma";
+import { reservePipelineDocumentSlot } from "./pipeline";
 
-type RawDocumentClient = Pick<PrismaClient, "rawDocument">;
+type RawDocumentClient = Pick<PrismaClient, "pipelineLock" | "rawDocument">;
 
 export type RawDocumentInput = {
   sourceUrl: string;
@@ -25,6 +26,15 @@ export async function storeRawDocumentIfNew(
   input: RawDocumentInput,
   client: RawDocumentClient = prisma,
 ) {
+  const slot = await reservePipelineDocumentSlot(client);
+  if (!slot.reserved) {
+    return {
+      status: "budget_exhausted" as const,
+      rawDocument: null,
+      contentHash: null,
+    };
+  }
+
   const contentHash = createContentHash(input.rawText);
   const existingDocument = await client.rawDocument.findUnique({
     where: { contentHash },

@@ -5,7 +5,7 @@ implements: [BRD-0002.R1, BRD-0002.R2, BRD-0002.R3, BRD-0002.R4, BRD-0002.R5, BR
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: [UNIT-0009, UNIT-0019, UNIT-0035, UNIT-0036, UNIT-0037, UNIT-0038, UNIT-0039]
-status: in-progress
+status: done
 ---
 
 # WO-0006: n8n ingestion workflow
@@ -134,3 +134,5 @@ Implement the scheduled n8n ingestion workflow that loads eligible KPIs, checks 
 - 2026-08-05: post-validation fix made priority URLs sequential per KPI; fallback begins only after the last priority URL fails, and a stored priority observation completes that KPI path without fallback.
 - 2026-08-05: final post-fix checks passed: `npm run lint`, `npm test` (18 files / 62 tests), `npm run build`, `npm run format`, `npx prisma validate`, and workflow JSON parse.
 - 2026-08-05: re-validation fix changed `Apply Document Budget` to derive its running count from the maximum incoming `documentsProcessed` value, preventing budget leaks across execution waves.
+- 2026-08-05: second re-validation fix clears `url` on document-budget terminal items and enforces the 10-document cap atomically in the app raw-document path through `PipelineLock.documentsProcessed`.
+- 2026-08-05: second re-validation checks passed: `npm run lint`, `npm test` (18 files / 65 tests), `npm run build`, `npm run format`, `npx prisma validate`, targeted workflow/raw-document/pipeline tests, and workflow JSON parse.

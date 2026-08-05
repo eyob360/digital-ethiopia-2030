@@ -20,6 +20,9 @@ describe("raw document ingestion service", () => {
           };
         },
       },
+      pipelineLock: {
+        updateMany: async () => ({ count: 1 }),
+      },
     };
 
     const result = await storeRawDocumentIfNew(
@@ -28,6 +31,9 @@ describe("raw document ingestion service", () => {
     );
 
     expect(result.status).toBe("stored");
+    if (result.status !== "stored") {
+      throw new Error("expected stored raw document");
+    }
     expect(result.rawDocument.id).toBe("raw-1");
     expect(result.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(created).toHaveLength(1);
@@ -48,6 +54,9 @@ describe("raw document ingestion service", () => {
           throw new Error("duplicate raw document should not be created");
         },
       },
+      pipelineLock: {
+        updateMany: async () => ({ count: 1 }),
+      },
     };
 
     const result = await storeRawDocumentIfNew(
@@ -56,7 +65,37 @@ describe("raw document ingestion service", () => {
     );
 
     expect(result.status).toBe("duplicate");
+    if (result.status !== "duplicate") {
+      throw new Error("expected duplicate raw document");
+    }
     expect(result.rawDocument.id).toBe("raw-existing");
+  });
+
+  it("returns budget exhausted before hashing or storing when the run cap is reached", async () => {
+    const client = {
+      rawDocument: {
+        findUnique: async () => {
+          throw new Error("budget-exhausted documents should not be hashed or looked up");
+        },
+        create: async () => {
+          throw new Error("budget-exhausted documents should not be created");
+        },
+      },
+      pipelineLock: {
+        updateMany: async () => ({ count: 0 }),
+      },
+    };
+
+    await expect(
+      storeRawDocumentIfNew(
+        { rawText: "Beyond budget", sourceUrl: "https://example.com/report" },
+        client as never,
+      ),
+    ).resolves.toEqual({
+      status: "budget_exhausted",
+      rawDocument: null,
+      contentHash: null,
+    });
   });
 
   it("parses required raw document input fields", () => {

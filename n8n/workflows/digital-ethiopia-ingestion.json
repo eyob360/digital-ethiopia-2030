@@ -111,7 +111,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst start = Math.max(0, ...items.map((item) => Number(item.json.documentsProcessed ?? 0)).filter(Number.isFinite));\nconst remaining = Math.max(0, 10 - start);\nif (!items.length || remaining === 0) return [{ json: { ...(items[0]?.json ?? {}), terminalReason: 'document-budget-exhausted', fallbackUsed: true } }];\nreturn items.slice(0, remaining).map((item, index) => ({ json: { ...item.json, documentsProcessed: start + index + 1 } }));"
+        "jsCode": "const items = $input.all();\nconst start = Math.max(0, ...items.map((item) => Number(item.json.documentsProcessed ?? 0)).filter(Number.isFinite));\nconst remaining = Math.max(0, 10 - start);\nif (!items.length || remaining === 0) return [{ json: { ...(items[0]?.json ?? {}), url: null, terminalReason: 'document-budget-exhausted', fallbackUsed: true } }];\nreturn items.slice(0, remaining).map((item, index) => ({ json: { ...item.json, documentsProcessed: start + index + 1 } }));"
       },
       "id": "apply-document-budget",
       "name": "Apply Document Budget",

@@ -32,3 +32,6 @@ All other criteria (R2–R11, N1, N2.AC2/AC3, ingestion API auth, registry, secr
 
 ## Result
 Work order returned to `in-progress`. Failure 1 is a small graph edit; failure 2 needs either the app-side counter (recommended) or a recorded decision narrowing the AC.
+
+## Resolution note 3
+Implementation follow-up kept N2.AC1 as a strict global cap, cleared `url` on exhausted-budget workflow terminal items, and added an app-side `PipelineLock.documentsProcessed` reservation enforced by `/api/ingestion/raw-documents`. Awaiting fresh re-validation; this report's `result: fail` remains the re-validation outcome until then.
