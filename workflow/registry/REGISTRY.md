@@ -35,6 +35,9 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0018](UNIT-0018-observation-service.md) — Observation service — src/server/observations.ts
 - [UNIT-0019](UNIT-0019-pipeline-service.md) — Pipeline service — src/server/pipeline.ts
 - [UNIT-0023](UNIT-0023-api-handler-helpers.md) — API handler helpers — src/server/api/handlers.ts
+- [UNIT-0035](UNIT-0035-ingestion-api-auth.md) — Ingestion API auth — src/server/api/ingestion-auth.ts
+- [UNIT-0036](UNIT-0036-raw-document-service.md) — Raw document service — src/server/raw-documents.ts
+- [UNIT-0037](UNIT-0037-tavily-search-provider.md) — Tavily search provider — src/server/search/tavily.ts
 
 ## Endpoints
 
@@ -43,6 +46,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0020](UNIT-0020-kpi-admin-api.md) — KPI admin API — src/app/api/kpis
 - [UNIT-0021](UNIT-0021-dashboard-kpi-api.md) — Dashboard KPI API — src/app/api/dashboard/kpis/route.ts
 - [UNIT-0022](UNIT-0022-pipeline-api.md) — Pipeline API — src/app/api/pipeline
+- [UNIT-0038](UNIT-0038-ingestion-api.md) — Ingestion API — src/app/api/ingestion
 
 ## Pages
 
@@ -52,3 +56,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0030](UNIT-0030-pipeline-page.md) — Pipeline page — src/app/pipeline/page.tsx
 - [UNIT-0033](UNIT-0033-login-page.md) — Login page — src/app/login/page.tsx
 - [UNIT-0034](UNIT-0034-account-page.md) — Account page — src/app/account/page.tsx
+
+## Workflows
+
+- [UNIT-0039](UNIT-0039-n8n-ingestion-workflow.md) — n8n ingestion workflow — n8n/workflows/digital-ethiopia-ingestion.json

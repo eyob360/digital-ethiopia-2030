@@ -54,10 +54,20 @@ export async function startPipelineRun(
     };
   }
 
+  const kpis = await loadEligibleKpisForPipeline(options, client);
+
+  if (!kpis.length) {
+    return {
+      started: true,
+      lock: await releasePipelineLock(client),
+      kpis,
+    };
+  }
+
   return {
     started: true,
     lock: lockResult.lock,
-    kpis: await loadEligibleKpisForPipeline(options, client),
+    kpis,
   };
 }
 

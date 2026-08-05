@@ -38,6 +38,12 @@ describe("pipeline services", () => {
           updatedAt,
         })),
         updateMany: vi.fn(async () => ({ count: 1 })),
+        update: vi.fn(async () => ({
+          name: "INGESTION",
+          locked: false,
+          lockedAt: null,
+          updatedAt,
+        })),
       },
       kpiDefinition: { findMany: vi.fn() },
     };
@@ -102,6 +108,12 @@ describe("pipeline services", () => {
           updatedAt,
         })),
         updateMany: vi.fn(async () => ({ count: 1 })),
+        update: vi.fn(async () => ({
+          name: "INGESTION",
+          locked: false,
+          lockedAt: null,
+          updatedAt,
+        })),
       },
       kpiDefinition: {
         findMany: vi.fn(async () => []),
@@ -109,10 +121,15 @@ describe("pipeline services", () => {
     };
 
     await expect(startPipelineRun({ now: updatedAt }, client as never)).resolves.toMatchObject({
+      lock: { locked: false },
       started: true,
       kpis: [],
     });
     expect(client.pipelineLock.updateMany).toHaveBeenCalledBefore(client.kpiDefinition.findMany);
+    expect(client.pipelineLock.update).toHaveBeenCalledWith({
+      where: { name: "INGESTION" },
+      data: { locked: false, lockedAt: null },
+    });
   });
 
   it("does not load KPIs when a start attempt finds an existing lock", async () => {

@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `getPipelineLockStatus`, `acquirePipelineLock`, `releasePipelineLock`, and `startPipelineRun`.
 
-**Variants/options:** Lock acquisition is atomic through `updateMany` on unlocked rows; `startPipelineRun` does not load KPIs when the lock is already held.
+**Variants/options:** Lock acquisition is atomic through `updateMany` on unlocked rows; `startPipelineRun` does not load KPIs when the lock is already held and releases the lock immediately when an acquired run has no eligible KPI batch.
