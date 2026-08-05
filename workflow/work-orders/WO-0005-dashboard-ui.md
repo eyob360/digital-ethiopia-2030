@@ -1,7 +1,7 @@
 ---
 id: WO-0005
 title: Dashboard UI
-implements: [BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
+implements: [BRD-0001.R2, BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: []
@@ -28,6 +28,12 @@ Build the MVP user-facing pages using the route SSOT and locked component style:
 - New component library.
 
 ## Requirements
+
+### BRD-0001.R2: KPI administration UI
+- AC1: When an authorized operator opens KPI administration, the system shall list existing KPI definitions.
+- AC2: When an authorized operator creates a KPI definition, the system shall capture the fields required by BRD-0001.R1.
+- AC3: When an authorized operator edits a KPI definition, the system shall persist changes to the controlled KPI catalogue.
+- AC4: When an authorized operator views a KPI definition, the system shall show source URLs, target value, expected unit, category, and fetch interval.
 
 ### BRD-0003.R3: Latest KPI view
 - AC1: When the dashboard loads, it shall display configured KPIs grouped or filterable by category.
