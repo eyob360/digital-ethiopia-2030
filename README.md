@@ -36,3 +36,15 @@ npm test
 npm run build
 docker compose config
 ```
+
+## Database
+
+Prisma migrations are the schema authority.
+
+```bash
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+```
+
+Set `SEED_OPERATOR_PASSWORD` before seeding to create the local `operator@example.local` account.

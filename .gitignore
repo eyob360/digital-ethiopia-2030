@@ -3,6 +3,7 @@ node_modules
 next-env.d.ts
 out
 coverage
+src/generated/prisma
 .env
 .env*.local
 !.env.example

@@ -4,8 +4,8 @@ title: Data and auth foundation
 implements: [BRD-0001.R1, BRD-0001.R3, BRD-0003.R2]
 blueprint: BP-0001
 depends-on: [WO-0001]
-units-touched: []
-status: ready
+units-touched: [UNIT-0003, UNIT-0004, UNIT-0005, UNIT-0006, UNIT-0007, UNIT-0008, UNIT-0009]
+status: in-progress
 ---
 
 # WO-0002: Data and auth foundation
@@ -52,6 +52,7 @@ Create the durable schema, migrations, seed data, and authentication/authorizati
 - `next-auth@latest` was deferred in WO-0001 because it resolved to vulnerable beta dependencies. Pick and document a non-vulnerable Auth.js/NextAuth package path before installing.
 - Prisma migrations are authoritative; do not hand-maintain duplicate schema docs.
 - Search-before-create: check `workflow/registry/REGISTRY.md` and existing `src/` before adding helpers/services.
+- Search-before-create result: created new units because the registry only contained the foundation button and home-page scaffold, and no existing auth, Prisma, or KPI catalogue helpers existed.
 
 ## Testing plan
 - `npm run lint`

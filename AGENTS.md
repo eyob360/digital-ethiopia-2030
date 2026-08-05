@@ -72,7 +72,7 @@ Keep responses short and simple — the user should be able to read, understand,
 - Full dev stack: `docker compose up -d && npm run dev` <!-- single entry-point script may replace this after scaffolding -->
 - Tests: `npm test`
 - Lint / format: `npm run lint`; `npm run format`
-- Dev data: Prisma seed/reset commands to be defined when the app scaffold and database are created.
+- Dev data: `npm run db:seed`; reset with `npm run db:reset` against the local PostgreSQL service.
 
 ## Conventions
 

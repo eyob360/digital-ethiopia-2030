@@ -4,21 +4,31 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "postinstall": "prisma generate",
     "build": "next build",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
     "start": "next start",
     "lint": "eslint .",
-    "format": "prettier --check README.md \"src/**/*.{ts,tsx,css}\" \"*.{js,ts,mjs,json,yml}\"",
-    "format:write": "prettier --write README.md \"src/**/*.{ts,tsx,css}\" \"*.{js,ts,mjs,json,yml}\"",
+    "format": "prettier --check README.md \"src/**/*.{ts,tsx,css}\" \"prisma/**/*.{js,ts,mjs}\" \"*.{js,ts,mjs,json,yml}\"",
+    "format:write": "prettier --write README.md \"src/**/*.{ts,tsx,css}\" \"prisma/**/*.{js,ts,mjs}\" \"*.{js,ts,mjs,json,yml}\"",
     "test": "vitest run"
   },
   "dependencies": {
-    "@prisma/client": "latest",
+    "@next-auth/prisma-adapter": "^1.0.7",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
     "next": "latest",
+    "next-auth": "^4.24.15",
+    "pg": "^8.22.0",
     "react": "latest",
     "react-dom": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/pg": "^8.20.4",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
@@ -26,7 +36,7 @@
     "eslint-config-next": "latest",
     "postcss": "latest",
     "prettier": "latest",
-    "prisma": "latest",
+    "prisma": "^7.9.1",
     "tailwindcss": "^3.4.0",
     "typescript": "latest",
     "vitest": "latest"

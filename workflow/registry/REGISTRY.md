@@ -10,9 +10,19 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 
 ## Hooks / Utils
 
+- [UNIT-0003](UNIT-0003-role-helpers.md) — Role helpers — src/lib/auth/roles.ts
+- [UNIT-0004](UNIT-0004-password-helpers.md) — Password helpers — src/lib/auth/password.ts
+- [UNIT-0008](UNIT-0008-initial-kpi-catalogue.md) — Initial KPI catalogue — src/lib/kpi/initial-catalogue.ts
+
 ## Services / Validators / API clients
 
+- [UNIT-0005](UNIT-0005-prisma-client.md) — Prisma client — src/lib/prisma.ts
+- [UNIT-0006](UNIT-0006-auth-options.md) — Auth options — src/server/auth.ts
+
 ## Endpoints
+
+- [UNIT-0007](UNIT-0007-auth-route.md) — Auth route — src/app/api/auth/[...nextauth]/route.ts
+- [UNIT-0009](UNIT-0009-auth-middleware.md) — Auth middleware — src/proxy.ts
 
 ## Pages
 
