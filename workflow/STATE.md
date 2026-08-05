@@ -22,6 +22,8 @@ Last drift audit: none
 
 ## Work Orders
 
+- [WO-0001](work-orders/WO-0001-foundation-scaffold.md) — Foundation scaffold (BP-0001) — status: in-progress
+
 <!-- - [WO-0001](work-orders/WO-0001-example.md) — Example ticket (BRD-0001) — status: draft -->
 
 ## Blocked / Needs user input
