@@ -1,0 +1,34 @@
+{
+  "name": "digital-ethiopia-2030",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "format": "prettier --check README.md \"src/**/*.{ts,tsx,css}\" \"*.{js,ts,mjs,json,yml}\"",
+    "format:write": "prettier --write README.md \"src/**/*.{ts,tsx,css}\" \"*.{js,ts,mjs,json,yml}\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@prisma/client": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "autoprefixer": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "postcss": "latest",
+    "prettier": "latest",
+    "prisma": "latest",
+    "tailwindcss": "^3.4.0",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}

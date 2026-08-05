@@ -4,6 +4,8 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 
 ## Components
 
+- [UNIT-0001](UNIT-0001-button.md) — Button — src/components/ui/button.tsx
+
 <!-- - [UNIT-0001](UNIT-0001-data-table.md) — DataTable — src/components/DataTable.tsx -->
 
 ## Hooks / Utils
@@ -13,3 +15,5 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 ## Endpoints
 
 ## Pages
+
+- [UNIT-0002](UNIT-0002-home-page.md) — Home page scaffold — src/app/page.tsx

@@ -4,7 +4,7 @@ title: Foundation scaffold
 implements: none
 blueprint: BP-0001
 depends-on: none
-units-touched: []
+units-touched: [UNIT-0001, UNIT-0002]
 status: in-progress
 ---
 
@@ -22,6 +22,7 @@ Scaffold the MVP application foundation so later work orders can build data, aut
 - Environment variable templates with no secrets.
 - Initial project documentation updates for actual commands and local startup.
 - Registry updates for reusable foundation units created by this work.
+- Auth.js package installation was deferred to the data/auth work order after `next-auth@latest` resolved to a vulnerable beta dependency path during foundation installation. The stack decision still requires Auth.js; the later auth work order must choose a non-vulnerable version deliberately.
 
 ## Out of scope
 - Prisma schema and migrations.

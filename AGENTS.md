@@ -65,6 +65,9 @@ Keep responses short and simple — the user should be able to read, understand,
 <!-- Fill in per project. Agents: if this section is empty, ask the user to fill it. -->
 
 - Stack: Next.js + TypeScript; Tailwind CSS with shadcn-style components; PostgreSQL; Prisma migrations as schema authority; Auth.js; n8n; OpenAI API; Tavily.
+- Design tokens: semantic CSS variables in `src/app/globals.css`, exposed through `tailwind.config.ts`.
+- Component library: local shadcn-style components in `src/components/ui`.
+- Route SSOT: Next.js `src/app/` tree.
 - Dev server: `npm run dev`
 - Full dev stack: `docker compose up -d && npm run dev` <!-- single entry-point script may replace this after scaffolding -->
 - Tests: `npm test`
@@ -87,5 +90,5 @@ Keep responses short and simple — the user should be able to read, understand,
 - Never force-push, drop schemas, or run destructive commands without explicit user approval.
 - Secrets never go in code or commits — use `.env`/vault; never commit keys.
 - New dependencies need user approval first; record the choice (and rejected alternatives) in `workflow/decisions/`. Before proposing one: check the existing tree and stdlib — one library per concern, never a second for the same job.
-- Forbidden patterns: <!-- per project, e.g. inline styles, magic numbers, direct DB calls from UI -->
+- Forbidden patterns: hardcoded colors, spacing, radii, and font sizes in UI code — use the semantic tokens in `src/app/globals.css` and `tailwind.config.ts`.
 - Code touching security, auth, payments, or core business rules gets user review before merge, even when validation passes.
