@@ -8,13 +8,14 @@ For a work order with status `done` (for maintenance WOs — `implements: none` 
 
 1. Re-read the work order and each acceptance criterion it implements.
 2. Verify each criterion against the actual code and by running the testing plan. Cite evidence (file, test, or observed behavior) per criterion.
-3. Check for drift: does the implementation contradict the BRD, blueprint, or any decision cited in the work order? If so, report to the user — don't silently fix either side.
-4. Write a report from the template below, saved in this folder as `VAL-WO-XXXX.md` (one report per work order — on re-validation, update the same file with the new date and result). If everything passes: set the WO to `validated`, update `../STATE.md`, and when all of a BRD's requirements are validated, update the BRD's status too.
-5. If anything fails: list failures in the report, set the WO back to `in-progress`, and note it in STATE.md.
+3. Check for drift: does the implementation contradict the BRD, blueprint, or **any recorded decision** (check `../DECISIONS.md` beyond just those cited in the work order — e.g. dependency and convention choices)? If so, report to the user — don't silently fix either side.
+4. Check for duplication: do the new units overlap an existing registry entry — or each other? Same-WO duplication is the common agent failure; compare the WO's new units against the registry *and* among themselves.
+5. Write a report from the template below, saved in this folder as `VAL-WO-XXXX.md` (one report per work order — on re-validation, update the same file with the new date and result). If everything passes: set the WO to `validated`, update `../STATE.md`, and when all of a BRD's requirements are validated, update the BRD's status too.
+6. If anything fails: list failures in the report, set the WO back to `in-progress`, and note it in STATE.md.
 
 ## Drift audits
 
-A periodic whole-project check that code still matches approved BRDs and blueprints, catching drift that accumulates outside validations (human commits, trivial fixes, refactors).
+A periodic whole-project check that code still matches approved BRDs and blueprints, catching drift that accumulates outside validations (human commits, trivial fixes, refactors). Audit merged and `done` work only — in-progress branches are exempt; their gate criteria haven't come due yet.
 
 1. Read the `Last drift audit` line in `../STATE.md`; review changes since that commit (`git log <hash>..HEAD`, diffs of affected areas).
 2. Compare changed code against the BRDs/blueprints covering it. List contradictions — report them to the user; never silently fix either side. Also check registry entries still point at real paths.
