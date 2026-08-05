@@ -5,7 +5,7 @@ implements: [BRD-0001.R2, BRD-0001.R4, BRD-0001.R6, BRD-0002.R11, BRD-0003.R1, B
 blueprint: BP-0001
 depends-on: [WO-0003]
 units-touched: [UNIT-0015, UNIT-0016, UNIT-0017, UNIT-0018, UNIT-0019, UNIT-0020, UNIT-0021, UNIT-0022]
-status: done
+status: validated
 ---
 
 # WO-0004: Dashboard and admin APIs
