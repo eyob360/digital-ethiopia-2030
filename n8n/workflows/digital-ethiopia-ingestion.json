@@ -1,0 +1,715 @@
+{
+  "name": "Digital Ethiopia 2030 Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "cron-hourly",
+      "name": "Hourly Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/ingestion/pipeline/runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.INGESTION_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"action\":\"start\"}"
+      },
+      "id": "start-run",
+      "name": "Start Pipeline Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [220, 0],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.started}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "run-started",
+      "name": "Run Started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const kpis = $json.kpis ?? [];\nreturn kpis.map((kpi) => ({ json: { kpi } }));"
+      },
+      "id": "expand-kpis",
+      "name": "Expand KPI Batch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, -120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const urls = ($json.kpi.sourceUrls ?? []).slice(0, 5);\nreturn [{ json: { ...$json, sourceType: 'priority', fallbackUsed: false, candidateUrls: urls, needsFallback: urls.length === 0 } }];"
+      },
+      "id": "priority-urls",
+      "name": "Priority URLs First",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [880, -120]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.needsFallback}}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "id": "has-priority",
+      "name": "Has Priority URLs?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1100, -120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const priorityIndex = $json.priorityIndex ?? 0;\nconst url = ($json.candidateUrls ?? [])[priorityIndex];\nreturn url ? [{ json: { ...$json, url, sourceType: 'priority', priorityIndex, fallbackUsed: false } }] : [{ json: { ...$json, terminalReason: 'priority-urls-exhausted' } }];"
+      },
+      "id": "expand-priority-urls",
+      "name": "Expand Priority URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, -260]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst start = Math.max(0, ...items.map((item) => Number(item.json.documentsProcessed ?? 0)).filter(Number.isFinite));\nconst remaining = Math.max(0, 10 - start);\nif (!items.length || remaining === 0) return [{ json: { ...(items[0]?.json ?? {}), url: null, terminalReason: 'document-budget-exhausted', fallbackUsed: true } }];\nreturn items.slice(0, remaining).map((item, index) => ({ json: { ...item.json, documentsProcessed: start + index + 1 } }));"
+      },
+      "id": "apply-document-budget",
+      "name": "Apply Document Budget",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1430, -80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.url}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has-url",
+      "name": "Has URL?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1500, -80]
+    },
+    {
+      "parameters": {
+        "url": "={{$json.url}}",
+        "responseFormat": "string"
+      },
+      "id": "fetch-priority-url",
+      "name": "Fetch Priority URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1540, -260],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...$json, rawText } }] : [{ json: { ...$json, terminalReason: 'no-readable-text' } }];"
+      },
+      "id": "extract-readable-text",
+      "name": "Extract Readable Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1760, -260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.rawText}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has-raw-text",
+      "name": "Has Raw Text?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1870, -260]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/ingestion/raw-documents",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.INGESTION_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"sourceUrl\": $json.url, \"rawText\": $json.rawText}"
+      },
+      "id": "store-raw-document",
+      "name": "Store Raw Document",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, -260],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.status}}",
+              "operation": "equal",
+              "value2": "stored"
+            }
+          ]
+        }
+      },
+      "id": "new-document",
+      "name": "New Document?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2200, -260]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.fallbackUsed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "fallback-already-used",
+      "name": "Fallback Already Used?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2300, -80]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$json, fallbackUsed: true } }];"
+      },
+      "id": "mark-fallback-used",
+      "name": "Mark Fallback Used",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2520, 40]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.sourceType === 'priority' && (($json.priorityIndex ?? 0) + 1) < ($json.candidateUrls ?? []).length && !$json.fallbackUsed}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "more-priority-urls",
+      "name": "More Priority URLs?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2410, -160]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { ...$json, priorityIndex: ($json.priorityIndex ?? 0) + 1 } }];"
+      },
+      "id": "increment-priority-index",
+      "name": "Increment Priority Index",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2630, -220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"gpt-5-mini\",\"input\":[{\"role\":\"system\",\"content\":\"Return strict JSON only: {\\\"relevant\\\": boolean, \\\"confidence\\\": number}.\"},{\"role\":\"user\",\"content\":\"KPI: \" + $json.kpi.name + \"\\nDescription: \" + $json.kpi.description + \"\\nDocument: \" + $json.rawDocument.rawText.slice(0, 12000)}]}"
+      },
+      "id": "openai-relevance",
+      "name": "OpenAI Relevance Gate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2420, -360],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-relevance-json' } }]; }\nif (typeof parsed?.relevant !== 'boolean' || typeof parsed?.confidence !== 'number') return [{ json: { ...$json, terminalReason: 'invalid-relevance-json' } }];\nreturn [{ json: { ...$json, relevance: parsed } }];"
+      },
+      "id": "validate-relevance-json",
+      "name": "Validate Relevance JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2640, -360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{typeof $json.relevance?.relevant === 'boolean'}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-relevance-json",
+      "name": "Has Relevance JSON?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2750, -360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.relevance.relevant}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "is-relevant",
+      "name": "Relevant?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2860, -360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"gpt-5-mini\",\"input\":[{\"role\":\"system\",\"content\":\"Return strict JSON only with keys: value_numeric, unit, region, observed_date, explanation, confidence. Do not normalize units, dates, percentages, currencies, or confidence thresholds.\"},{\"role\":\"user\",\"content\":\"KPI: \" + $json.kpi.name + \"\\nExpected unit: \" + $json.kpi.expectedUnit + \"\\nDocument: \" + $json.rawDocument.rawText.slice(0, 12000)}]}"
+      },
+      "id": "openai-extraction",
+      "name": "OpenAI Structured Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3080, -460],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }]; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }];\nreturn [{ json: { kpiId: $json.kpi.id, rawDocumentId: $json.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: $json.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation, fallbackUsed: $json.fallbackUsed } }];"
+      },
+      "id": "validate-extraction-json",
+      "name": "Validate Extraction JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3300, -460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.kpiId}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "has-extraction-json",
+      "name": "Has Extraction JSON?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [3410, -460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/ingestion/observations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.INGESTION_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json}}"
+      },
+      "id": "store-observation",
+      "name": "Store Observation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3520, -460],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/responses",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.OPENAI_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"gpt-5-mini\",\"input\":[{\"role\":\"system\",\"content\":\"Return strict JSON only: {\\\"queries\\\": string[]} with 3 to 5 search queries.\"},{\"role\":\"user\",\"content\":\"KPI: \" + $json.kpi.name + \"\\nDescription: \" + $json.kpi.description}]}"
+      },
+      "id": "openai-query-generation",
+      "name": "OpenAI Query Generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1320, 80],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-query-json' } }]; }\nconst queries = Array.isArray(parsed?.queries) ? parsed.queries.filter((query) => typeof query === 'string' && query.trim()).slice(0, 5) : [];\nif (queries.length < 3 || queries.length > 5) return [{ json: { ...$json, terminalReason: 'invalid-query-json' } }];\nreturn [{ json: { ...$json, queries } }];"
+      },
+      "id": "validate-query-json",
+      "name": "Validate Query JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{Array.isArray($json.queries) && $json.queries.length >= 3}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "has-query-json",
+      "name": "Has Query JSON?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1650, 80]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/ingestion/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.INGESTION_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"queries\": $json.queries, \"maxResults\": 5}"
+      },
+      "id": "tavily-search",
+      "name": "Tavily Search via App Provider",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1760, 80],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/ingestion/url-filter",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.INGESTION_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"urls\": ($json.results ?? []).map((result) => result.url), \"maxUrls\": 5}"
+      },
+      "id": "filter-search-urls",
+      "name": "Filter Search URLs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 80],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const urls = ($json.urls ?? []).slice(0, 5);\nreturn urls.length ? urls.map((item) => ({ json: { ...$json, url: item.url, sourceType: 'fallback', fallbackUsed: true } })) : [{ json: { ...$json, terminalReason: 'no-filtered-urls', fallbackUsed: true } }];"
+      },
+      "id": "expand-filtered-urls",
+      "name": "Expand Filtered URLs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 80]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/ingestion/pipeline/runs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.INGESTION_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"action\":\"complete\"}"
+      },
+      "id": "complete-run",
+      "name": "Complete Pipeline Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [3740, 0],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Hourly Cron": {
+      "main": [[{ "node": "Start Pipeline Run", "type": "main", "index": 0 }]]
+    },
+    "Start Pipeline Run": {
+      "main": [[{ "node": "Run Started?", "type": "main", "index": 0 }]]
+    },
+    "Run Started?": {
+      "main": [
+        [{ "node": "Expand KPI Batch", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Expand KPI Batch": {
+      "main": [[{ "node": "Priority URLs First", "type": "main", "index": 0 }]]
+    },
+    "Priority URLs First": {
+      "main": [[{ "node": "Has Priority URLs?", "type": "main", "index": 0 }]]
+    },
+    "Has Priority URLs?": {
+      "main": [
+        [{ "node": "Expand Priority URLs", "type": "main", "index": 0 }],
+        [{ "node": "OpenAI Query Generation", "type": "main", "index": 0 }]
+      ]
+    },
+    "Expand Priority URLs": {
+      "main": [[{ "node": "Apply Document Budget", "type": "main", "index": 0 }]]
+    },
+    "Apply Document Budget": {
+      "main": [[{ "node": "Has URL?", "type": "main", "index": 0 }]]
+    },
+    "Has URL?": {
+      "main": [
+        [{ "node": "Fetch Priority URL", "type": "main", "index": 0 }],
+        [{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Priority URL": {
+      "main": [[{ "node": "Extract Readable Text", "type": "main", "index": 0 }]]
+    },
+    "Extract Readable Text": {
+      "main": [[{ "node": "Has Raw Text?", "type": "main", "index": 0 }]]
+    },
+    "Has Raw Text?": {
+      "main": [
+        [{ "node": "Store Raw Document", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store Raw Document": {
+      "main": [[{ "node": "New Document?", "type": "main", "index": 0 }]]
+    },
+    "New Document?": {
+      "main": [
+        [{ "node": "OpenAI Relevance Gate", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
+    },
+    "More Priority URLs?": {
+      "main": [
+        [{ "node": "Increment Priority Index", "type": "main", "index": 0 }],
+        [{ "node": "Fallback Already Used?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Increment Priority Index": {
+      "main": [[{ "node": "Expand Priority URLs", "type": "main", "index": 0 }]]
+    },
+    "Fallback Already Used?": {
+      "main": [
+        [{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }],
+        [{ "node": "Mark Fallback Used", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mark Fallback Used": {
+      "main": [[{ "node": "OpenAI Query Generation", "type": "main", "index": 0 }]]
+    },
+    "OpenAI Relevance Gate": {
+      "main": [[{ "node": "Validate Relevance JSON", "type": "main", "index": 0 }]]
+    },
+    "Validate Relevance JSON": {
+      "main": [[{ "node": "Has Relevance JSON?", "type": "main", "index": 0 }]]
+    },
+    "Has Relevance JSON?": {
+      "main": [
+        [{ "node": "Relevant?", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Relevant?": {
+      "main": [
+        [{ "node": "OpenAI Structured Extraction", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI Structured Extraction": {
+      "main": [[{ "node": "Validate Extraction JSON", "type": "main", "index": 0 }]]
+    },
+    "Validate Extraction JSON": {
+      "main": [[{ "node": "Has Extraction JSON?", "type": "main", "index": 0 }]]
+    },
+    "Has Extraction JSON?": {
+      "main": [
+        [{ "node": "Store Observation", "type": "main", "index": 0 }],
+        [{ "node": "More Priority URLs?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store Observation": {
+      "main": [[{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]]
+    },
+    "OpenAI Query Generation": {
+      "main": [[{ "node": "Validate Query JSON", "type": "main", "index": 0 }]]
+    },
+    "Validate Query JSON": {
+      "main": [[{ "node": "Has Query JSON?", "type": "main", "index": 0 }]]
+    },
+    "Has Query JSON?": {
+      "main": [
+        [{ "node": "Tavily Search via App Provider", "type": "main", "index": 0 }],
+        [{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]
+      ]
+    },
+    "Tavily Search via App Provider": {
+      "main": [[{ "node": "Filter Search URLs", "type": "main", "index": 0 }]]
+    },
+    "Filter Search URLs": {
+      "main": [[{ "node": "Expand Filtered URLs", "type": "main", "index": 0 }]]
+    },
+    "Expand Filtered URLs": {
+      "main": [[{ "node": "Apply Document Budget", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Africa/Addis_Ababa"
+  },
+  "pinData": {},
+  "versionId": "digital-ethiopia-2030-wo-0006"
+}

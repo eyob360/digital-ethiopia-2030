@@ -10,6 +10,6 @@ status: active
 
 **Purpose:** Requires authentication before serving application routes and protected API routes.
 
-**Interface:** Next.js proxy matcher for all routes except `/api/auth`, `/login`, framework assets, images, and favicon.
+**Interface:** Next.js proxy matcher for all routes except `/api/auth`, `/api/ingestion`, `/login`, framework assets, images, and favicon.
 
-**Variants/options:** Configures `/login` as the Auth.js sign-in page.
+**Variants/options:** Configures `/login` as the Auth.js sign-in page; ingestion API routes use bearer-key auth instead of browser sessions.

@@ -3,6 +3,7 @@ import {
   acquirePipelineLock,
   getPipelineLockStatus,
   releasePipelineLock,
+  reservePipelineDocumentSlot,
   startPipelineRun,
 } from "./pipeline";
 
@@ -16,6 +17,7 @@ describe("pipeline services", () => {
           name: "INGESTION",
           locked: false,
           lockedAt: null,
+          documentsProcessed: 0,
           updatedAt,
         })),
       },
@@ -35,9 +37,17 @@ describe("pipeline services", () => {
           name: "INGESTION",
           locked: false,
           lockedAt: null,
+          documentsProcessed: 0,
           updatedAt,
         })),
         updateMany: vi.fn(async () => ({ count: 1 })),
+        update: vi.fn(async () => ({
+          name: "INGESTION",
+          locked: false,
+          lockedAt: null,
+          documentsProcessed: 0,
+          updatedAt,
+        })),
       },
       kpiDefinition: { findMany: vi.fn() },
     };
@@ -47,7 +57,7 @@ describe("pipeline services", () => {
     });
     expect(client.pipelineLock.updateMany).toHaveBeenCalledWith({
       where: { name: "INGESTION", locked: false },
-      data: { locked: true, lockedAt: updatedAt },
+      data: { locked: true, lockedAt: updatedAt, documentsProcessed: 0 },
     });
   });
 
@@ -58,6 +68,7 @@ describe("pipeline services", () => {
           name: "INGESTION",
           locked: true,
           lockedAt: updatedAt,
+          documentsProcessed: 0,
           updatedAt,
         })),
         updateMany: vi.fn(async () => ({ count: 0 })),
@@ -79,6 +90,7 @@ describe("pipeline services", () => {
           name: "INGESTION",
           locked: false,
           lockedAt: null,
+          documentsProcessed: 0,
           updatedAt,
         })),
       },
@@ -88,7 +100,41 @@ describe("pipeline services", () => {
     await expect(releasePipelineLock(client as never)).resolves.toMatchObject({ locked: false });
     expect(client.pipelineLock.update).toHaveBeenCalledWith({
       where: { name: "INGESTION" },
-      data: { locked: false, lockedAt: null },
+      data: { locked: false, lockedAt: null, documentsProcessed: 0 },
+    });
+  });
+
+  it("reserves document slots only while the ingestion run is under budget", async () => {
+    const client = {
+      pipelineLock: {
+        updateMany: vi.fn(async () => ({ count: 1 })),
+      },
+      kpiDefinition: { findMany: vi.fn() },
+    };
+
+    await expect(reservePipelineDocumentSlot(client as never)).resolves.toEqual({
+      reserved: true,
+    });
+    expect(client.pipelineLock.updateMany).toHaveBeenCalledWith({
+      where: {
+        name: "INGESTION",
+        locked: true,
+        documentsProcessed: { lt: 10 },
+      },
+      data: { documentsProcessed: { increment: 1 } },
+    });
+  });
+
+  it("rejects document slot reservations when the run is not active or at budget", async () => {
+    const client = {
+      pipelineLock: {
+        updateMany: vi.fn(async () => ({ count: 0 })),
+      },
+      kpiDefinition: { findMany: vi.fn() },
+    };
+
+    await expect(reservePipelineDocumentSlot(client as never)).resolves.toEqual({
+      reserved: false,
     });
   });
 
@@ -99,9 +145,17 @@ describe("pipeline services", () => {
           name: "INGESTION",
           locked: false,
           lockedAt: null,
+          documentsProcessed: 0,
           updatedAt,
         })),
         updateMany: vi.fn(async () => ({ count: 1 })),
+        update: vi.fn(async () => ({
+          name: "INGESTION",
+          locked: false,
+          lockedAt: null,
+          documentsProcessed: 0,
+          updatedAt,
+        })),
       },
       kpiDefinition: {
         findMany: vi.fn(async () => []),
@@ -109,10 +163,15 @@ describe("pipeline services", () => {
     };
 
     await expect(startPipelineRun({ now: updatedAt }, client as never)).resolves.toMatchObject({
+      lock: { locked: false },
       started: true,
       kpis: [],
     });
     expect(client.pipelineLock.updateMany).toHaveBeenCalledBefore(client.kpiDefinition.findMany);
+    expect(client.pipelineLock.update).toHaveBeenCalledWith({
+      where: { name: "INGESTION" },
+      data: { locked: false, lockedAt: null, documentsProcessed: 0 },
+    });
   });
 
   it("does not load KPIs when a start attempt finds an existing lock", async () => {
@@ -122,6 +181,7 @@ describe("pipeline services", () => {
           name: "INGESTION",
           locked: true,
           lockedAt: updatedAt,
+          documentsProcessed: 0,
           updatedAt,
         })),
         updateMany: vi.fn(async () => ({ count: 0 })),

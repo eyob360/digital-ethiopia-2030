@@ -2,7 +2,7 @@
 id: BRD-0002
 title: Intelligence ingestion pipeline
 source: srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Priority URLs vs Web Search; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 3: AI Query Generator; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 4: Web Search Layer; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 5: URL Filtering & Deduplication; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 6: Content Fetching; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 7: Hashing & Duplicate Detection; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 8: Relevance Classification (AI Gate); srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 9: Structured Data Extraction (Core Intelligence Layer); srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 10: Deterministic Normalization; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 11: Confidence Gate; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 12: KPI Observation Storage; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#5. Operational Safeguards
-status: approved
+status: validated
 ---
 
 # BRD-0002: Intelligence ingestion pipeline

@@ -4,8 +4,8 @@ title: n8n ingestion workflow
 implements: [BRD-0002.R1, BRD-0002.R2, BRD-0002.R3, BRD-0002.R4, BRD-0002.R5, BRD-0002.R6, BRD-0002.R7, BRD-0002.R8, BRD-0002.R9, BRD-0002.R10, BRD-0002.R11, BRD-0002.N1, BRD-0002.N2]
 blueprint: BP-0001
 depends-on: [WO-0004]
-units-touched: []
-status: ready
+units-touched: [UNIT-0009, UNIT-0019, UNIT-0035, UNIT-0036, UNIT-0037, UNIT-0038, UNIT-0039]
+status: validated
 ---
 
 # WO-0006: n8n ingestion workflow
@@ -118,3 +118,21 @@ Implement the scheduled n8n ingestion workflow that loads eligible KPIs, checks 
 - Validate the n8n workflow export/documentation shape.
 - Use mocked OpenAI/Tavily responses for local tests where live credentials are unavailable.
 - Manual dry-run documentation for expected operational path.
+
+## Completion evidence
+- 2026-08-05: `npm run lint` passed.
+- 2026-08-05: `npm test` passed, 18 files / 61 tests.
+- 2026-08-05: `npm run build` passed.
+- 2026-08-05: `npm run format` passed.
+- 2026-08-05: `npx prisma validate` passed.
+- 2026-08-05: `node -e "JSON.parse(require('fs').readFileSync('n8n/workflows/digital-ethiopia-ingestion.json','utf8')); console.log('workflow json ok')"` passed.
+- 2026-08-05: workflow export test validated required n8n nodes, app ingestion API boundaries, priority/fallback connections, retry settings, and mocked OpenAI/Tavily response shapes.
+- 2026-08-05: local route checks on port 3010 verified ingestion API bearer denial (`401`), deterministic URL filtering (`200` with blocked social URL removed), and clear missing Tavily config error (`500`, `TAVILY_API_KEY is not configured`).
+- 2026-08-05: post-validation fix removed direct duplicate/irrelevant fallback cycles by routing failed branches through `More Priority URLs?` and `Fallback Already Used?`.
+- 2026-08-05: post-validation fix added `Apply Document Budget`, which tracks `documentsProcessed` and caps document fetch branches at 10 per hourly run.
+- 2026-08-05: post-validation fix routes malformed/empty terminal branches to `Complete Pipeline Run` instead of zero-item dead ends.
+- 2026-08-05: post-validation fix made priority URLs sequential per KPI; fallback begins only after the last priority URL fails, and a stored priority observation completes that KPI path without fallback.
+- 2026-08-05: final post-fix checks passed: `npm run lint`, `npm test` (18 files / 62 tests), `npm run build`, `npm run format`, `npx prisma validate`, and workflow JSON parse.
+- 2026-08-05: re-validation fix changed `Apply Document Budget` to derive its running count from the maximum incoming `documentsProcessed` value, preventing budget leaks across execution waves.
+- 2026-08-05: second re-validation fix clears `url` on document-budget terminal items and enforces the 10-document cap atomically in the app raw-document path through `PipelineLock.documentsProcessed`.
+- 2026-08-05: second re-validation checks passed: `npm run lint`, `npm test` (18 files / 65 tests), `npm run build`, `npm run format`, `npx prisma validate`, targeted workflow/raw-document/pipeline tests, and workflow JSON parse.
