@@ -5,7 +5,7 @@ implements: none
 blueprint: BP-0001
 depends-on: none
 units-touched: [UNIT-0001, UNIT-0002]
-status: in-progress
+status: done
 ---
 
 # WO-0001: Foundation scaffold
@@ -60,3 +60,12 @@ Completion checks:
 - Confirm no secrets are committed in env templates.
 - Confirm `AGENTS.md` commands match implemented package scripts.
 - Confirm registry entries exist for reusable units created by this work.
+
+## Completion notes
+- `npm run lint` passed.
+- `npm test` passed.
+- `npm run build` passed.
+- `npm run format` passed after narrowing formatting to app/config files and README so immutable workflow SRS documents are not rewritten.
+- `docker compose config` passed.
+- `npm audit --omit=dev` reported 0 vulnerabilities after deferring out-of-scope Auth.js package installation to the data/auth work order.
+- `.env.example` contains placeholders only; real secrets remain uncommitted.
