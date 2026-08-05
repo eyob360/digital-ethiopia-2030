@@ -35,7 +35,16 @@ As a program analyst, I want search queries generated from KPI metadata so that 
 - AC2: When query generation succeeds, the system shall receive a JSON array of 3 to 5 search queries.
 - AC3: When query generation returns invalid JSON, the system shall reject the query-generation result.
 
-### BRD-0002.R3: Web search and URL controls
+### BRD-0002.R3: Fallback search provider
+As a technical operator, I want fallback web search routed through a configurable provider so that the MVP can start with Tavily without locking the system to one vendor.
+
+**Acceptance criteria:**
+- AC1: When fallback web search is configured for MVP, the system shall use Tavily as the initial provider.
+- AC2: When fallback web search executes, the system shall call the provider through an internal search-provider abstraction.
+- AC3: When provider credentials are missing, the system shall fail the fallback search branch with a clear configuration error.
+- AC4: When the provider is changed later, the pipeline shall not require changes to KPI definitions.
+
+### BRD-0002.R4: Web search and URL controls
 As a technical operator, I want bounded web search so that the MVP avoids crawler-like behavior and cost spikes.
 
 **Acceptance criteria:**
@@ -44,7 +53,7 @@ As a technical operator, I want bounded web search so that the MVP avoids crawle
 - AC3: When candidate URLs are gathered, the system shall remove invalid domains according to configured filtering rules.
 - AC4: When candidate URL filtering completes, the system shall pass no more than 5 URLs to content fetching for a KPI.
 
-### BRD-0002.R4: Content fetching and raw document storage
+### BRD-0002.R5: Content fetching and raw document storage
 As a technical operator, I want fetched source content stored so that observations can be audited back to evidence.
 
 **Acceptance criteria:**
@@ -52,7 +61,7 @@ As a technical operator, I want fetched source content stored so that observatio
 - AC2: When raw text is available, the system shall store `source_url`, `raw_text`, `content_hash`, and `created_at` in `raw_documents`.
 - AC3: When fetching fails after retry handling, the system shall skip that candidate URL without stopping unrelated KPI processing.
 
-### BRD-0002.R5: Duplicate document detection
+### BRD-0002.R6: Duplicate document detection
 As a technical operator, I want identical documents skipped so that the system avoids redundant processing and AI costs.
 
 **Acceptance criteria:**
@@ -60,7 +69,7 @@ As a technical operator, I want identical documents skipped so that the system a
 - AC2: When the content hash already exists in the database, the system shall stop processing that document branch.
 - AC3: When the content hash is new, the system shall continue to relevance classification.
 
-### BRD-0002.R6: AI relevance gate
+### BRD-0002.R7: AI relevance gate
 As a program analyst, I want irrelevant documents rejected before extraction so that the system avoids noisy observations.
 
 **Acceptance criteria:**
@@ -69,7 +78,7 @@ As a program analyst, I want irrelevant documents rejected before extraction so 
 - AC3: When `relevant` is false, the system shall stop processing that document branch.
 - AC4: When classification output is invalid, the system shall reject the classification result.
 
-### BRD-0002.R7: Structured KPI extraction
+### BRD-0002.R8: Structured KPI extraction
 As a program analyst, I want relevant documents converted into normalized observation candidates so that unstructured text becomes measurable KPI data.
 
 **Acceptance criteria:**
@@ -78,7 +87,7 @@ As a program analyst, I want relevant documents converted into normalized observ
 - AC3: When extraction output is not strict structured JSON, the system shall reject the extraction result.
 - AC4: When extraction succeeds, the system shall not use AI to perform deterministic normalization or final confidence threshold decisions.
 
-### BRD-0002.R8: Deterministic normalization
+### BRD-0002.R9: Deterministic normalization
 As a technical operator, I want extracted units and dates normalized by rules so that stored observations are consistent and auditable.
 
 **Acceptance criteria:**
@@ -87,7 +96,7 @@ As a technical operator, I want extracted units and dates normalized by rules so
 - AC3: When an observation candidate contains dates, the system shall standardize them to ISO format.
 - AC4: When normalization cannot produce a valid value, unit, and date, the system shall reject the observation candidate.
 
-### BRD-0002.R9: Confidence-based storage
+### BRD-0002.R10: Confidence-based storage
 As a program analyst, I want confidence thresholds applied before storage so that dashboard integrity is protected.
 
 **Acceptance criteria:**
@@ -96,7 +105,7 @@ As a program analyst, I want confidence thresholds applied before storage so tha
 - AC3: When normalized confidence is below 0.6, the system shall reject the observation.
 - AC4: When an observation is inserted, the system shall store `kpi_id`, `value`, `unit`, `region`, `observed_date`, `source_url`, `ai_confidence`, `review_flag`, and `created_at`.
 
-### BRD-0002.R10: Append-only observation history
+### BRD-0002.R11: Append-only observation history
 As a decision maker, I want every accepted KPI value retained historically so that the dashboard can show current state and time series.
 
 **Acceptance criteria:**
@@ -122,6 +131,5 @@ As a decision maker, I want every accepted KPI value retained historically so th
 - Vector search or chatbot behavior.
 
 ## Open questions
-- Which search provider or search API should be used for the web search layer?
 - What domains should be considered invalid or blocked during URL filtering?
 - Should raw documents be stored before or after duplicate detection when the same content hash already exists?

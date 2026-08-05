@@ -98,4 +98,4 @@ As a technical operator, I want only one pipeline execution at a time so that du
 | Global hyperscalers | Count of global hyperscale cloud or infrastructure providers active in Ethiopia. | providers |  | Position Ethiopia for Digital FDI | `https://www.digitalethiopia.tech/` |
 
 ## Open questions
-- Which search provider or search API should be used for fallback web search?
+None.
