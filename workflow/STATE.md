@@ -34,7 +34,4 @@ Last drift audit: none
 
 ## Blocked / Needs user input
 
-- WO-0004 — validated (VAL-WO-0004 pass); branch `wo-0004-dashboard-api` awaits user review before merge (role-protected APIs)
-- BRD-0001.R2 admin UI (required by D-0005) has no covering work order — confirm where it is planned
-
 <!-- - WO-0003 — waiting on decision about payment provider -->
