@@ -34,6 +34,4 @@ Last drift audit: none
 
 ## Blocked / Needs user input
 
-- WO-0003 — validated (VAL-WO-0003 pass); branch `wo-0003-deterministic-pipeline-rules` awaits user review before merge (core business rules: confidence thresholds, URL filtering policy)
-
 <!-- - WO-0003 — waiting on decision about payment provider -->
