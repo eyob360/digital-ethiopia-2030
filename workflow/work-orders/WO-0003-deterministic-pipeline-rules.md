@@ -5,7 +5,7 @@ implements: [BRD-0001.R5, BRD-0002.R4, BRD-0002.R5, BRD-0002.R6, BRD-0002.R9, BR
 blueprint: BP-0001
 depends-on: [WO-0002]
 units-touched: [UNIT-0010, UNIT-0011, UNIT-0012, UNIT-0013, UNIT-0014]
-status: done
+status: validated
 ---
 
 # WO-0003: Deterministic pipeline rules
