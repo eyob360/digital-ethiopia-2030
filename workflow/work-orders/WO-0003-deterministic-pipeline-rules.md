@@ -5,7 +5,7 @@ implements: [BRD-0001.R5, BRD-0002.R4, BRD-0002.R5, BRD-0002.R6, BRD-0002.R9, BR
 blueprint: BP-0001
 depends-on: [WO-0002]
 units-touched: [UNIT-0010, UNIT-0011, UNIT-0012, UNIT-0013, UNIT-0014]
-status: in-progress
+status: done
 ---
 
 # WO-0003: Deterministic pipeline rules
@@ -79,3 +79,10 @@ Implement tested TypeScript utilities for all deterministic ingestion rules that
 - `npm test`
 - `npm run build`
 - Unit tests for every threshold, invalid input path, and representative unit/date normalization.
+
+## Completion evidence
+- `npm run lint` passed.
+- `npm test` passed: 9 test files, 29 tests.
+- `npm run build` passed.
+- `npm run format` passed.
+- Unit tests cover fetch eligibility thresholds, URL filtering/deduplication/capping/configuration, SHA256 raw-text hashing and duplicate decisions, observation normalization failures and unit/date normalization, and confidence insert/review/reject thresholds.
