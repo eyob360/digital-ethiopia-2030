@@ -5,7 +5,7 @@ implements: [BRD-0001.R2, BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: []
-status: ready
+status: in-progress
 ---
 
 # WO-0005: Dashboard UI
