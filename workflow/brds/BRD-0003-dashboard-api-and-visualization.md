@@ -54,6 +54,7 @@ As a program analyst, I want to inspect observation history so that I can evalua
 - AC1: When a user opens a KPI detail view, the dashboard shall show historical observations for that KPI.
 - AC2: When historical observations are shown, the dashboard shall preserve source traceability for each observation.
 - AC3: When historical observations contain review-flagged values, the dashboard shall visibly distinguish them from auto-accepted values.
+- AC4: When historical observations contain review-flagged values, the MVP shall not provide approve or reject actions.
 
 ### BRD-0003.R5: Target progress
 As a decision maker, I want to compare current KPI values with Digital Ethiopia 2030 targets so that progress is visible.
@@ -69,10 +70,9 @@ As a decision maker, I want to compare current KPI values with Digital Ethiopia 
 - AC1: When dashboard pages render KPI data, heavy ingestion and transformation logic shall remain in the backend or pipeline layer.
 
 ## Out of scope
-- Editing or approving review-flagged observations from the dashboard in the MVP.
+- Editing, approving, or rejecting review-flagged observations from the dashboard in the MVP.
 - Chatbot, vector search, and advanced analytics.
 - Multi-language processing.
 
 ## Open questions
-- Should review-flagged observations only be visible, or should analysts be able to approve/reject them in the first release?
 - What visual pages are required beyond overview and KPI detail?
