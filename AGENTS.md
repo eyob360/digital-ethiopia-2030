@@ -42,7 +42,7 @@ Implement only from work orders, never from BRDs directly. Exception: BRDs the u
 3. A `blocked` item in STATE.md can be unblocked → surface it.
 4. An approved BRD has requirements with no work orders → offer to plan them (blueprint first if warranted).
 5. A `ready` work order exists → offer to implement it; prefer ones that others `depend-on`, and respect the build order in `workflow/brds/OVERVIEW.md`.
-6. A `done` work order exists → offer to validate it (`validation/INSTRUCTIONS.md`).
+6. A `done` work order exists → offer to validate it (`validation/INSTRUCTIONS.md`) — but if this session implemented it, say so and recommend a fresh session or different agent instead.
 7. The `Last drift audit` in STATE.md is stale (~20+ commits behind HEAD, or none recorded and the codebase is non-trivial) → offer a drift audit.
 
 ## Communication
@@ -75,8 +75,14 @@ Keep responses short and simple — the user should be able to read, understand,
 
 <!-- Per project: adjust to taste. Sensible defaults below. -->
 
-- Branching: feature branches off `main`; never commit directly to `main`.
+- Branching: one branch per work order off `main`, named after it (`wo-0003-batch-export`; exploration: `explore-brd-0002-dashboard`); never commit directly to `main`.
+- Branch lifecycle: create when the WO goes `in-progress`; validate on the branch; on validation pass, rebase + fast-forward merge and delete the branch — automatically, no approval needed. Exception: WOs touching sensitive areas (see review rule below) wait for user review. `main` is always releasable: nothing unvalidated lands on it.
 - Commits: Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`). Reference the work order ID in the message (e.g. `feat: add batch export [WO-0003]`).
+- Commit at coherent checkpoints — a working unit of progress, not an end-of-session dump; never mix unrelated work orders in one commit.
+- When a work order's status changes, commit the workflow-doc edit together with the code it describes — history then ties evidence to IDs (drift audits rely on this).
+- Stage deliberately: only files the current work touched — no blanket `git add -A`.
+- Commit freely on the feature branch; merging follows the branch lifecycle above; pushing to remotes needs user approval.
+- Keep history linear: rebase the feature branch on `main` before merging, then fast-forward merge. Never rebase a branch others may have pulled without user approval.
 - PRs: one work order per PR where practical; PR description links the work order.
 - Never force-push, drop schemas, or run destructive commands without explicit user approval.
 - Secrets never go in code or commits — use `.env`/vault; never commit keys.

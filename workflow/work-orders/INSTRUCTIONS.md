@@ -6,7 +6,7 @@ A work order is a **self-contained implementation ticket**: an agent must be abl
 
 1. Write it from an approved BRD (and blueprint, if one exists) using the template below. Copy in the relevant requirement IDs and acceptance criteria — don't just link them.
 2. Add an index line to `../STATE.md`. Status `ready` means a user has reviewed it. Don't start a WO whose `depends-on` entries aren't at least `done`.
-3. To execute: set status `in-progress`, implement, run the testing plan, then follow `../validation/INSTRUCTIONS.md` before marking `done`. When every requirement of a BRD is covered by a `done` work order, set that BRD's status to `implemented`.
+3. To execute: set status `in-progress`, implement, run the testing plan, then follow `../validation/INSTRUCTIONS.md` before marking `done`. On marking `done`, tell the user validation should run in a **fresh session** (or a different agent) — implementers grade themselves too kindly. When every requirement of a BRD is covered by a `done` work order, set that BRD's status to `implemented`.
 4. If implementation reveals the WO is wrong, infeasible, or underspecified: stop, set it back to `draft`, list it under **Blocked** in `../STATE.md`, and raise it with the user — the fix may belong in the BRD or blueprint, not the WO.
 
 ## Issue triage
