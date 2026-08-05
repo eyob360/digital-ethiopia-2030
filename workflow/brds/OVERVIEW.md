@@ -40,7 +40,7 @@ Cheap checks while iterating should be targeted unit tests and type/lint checks 
 - Data model: core schema includes `kpi_definitions`, `raw_documents`, and `kpi_observations`.
 - Schema authority: the implementation must declare a single authoritative schema source once the stack is chosen.
 - Data retention: KPI observations are append-only; old values are never overwritten.
-- Security and authorization: roles and permissions are not specified in the SRS and need user confirmation before implementation.
+- Security and authorization: login is required for the MVP; `operator` users can manage KPI definitions and operational controls, while `viewer` users have read-only dashboard access.
 - Accessibility: dashboard accessibility target is not specified in the SRS and needs user confirmation before implementation.
 - Localization: multi-language processing is explicitly out of MVP scope.
 - Performance and limits: MVP safeguards include max 10 documents per hour, max 5 URLs per KPI, max 10 KPIs per run, one pipeline execution at a time, and strict JSON validation for AI outputs.
