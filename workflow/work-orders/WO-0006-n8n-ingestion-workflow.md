@@ -5,7 +5,7 @@ implements: [BRD-0002.R1, BRD-0002.R2, BRD-0002.R3, BRD-0002.R4, BRD-0002.R5, BR
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: [UNIT-0009, UNIT-0019, UNIT-0035, UNIT-0036, UNIT-0037, UNIT-0038, UNIT-0039]
-status: done
+status: validated
 ---
 
 # WO-0006: n8n ingestion workflow

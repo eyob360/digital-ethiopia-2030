@@ -2,36 +2,49 @@
 id: VAL-WO-0006
 work-order: WO-0006
 date: 2026-08-05
-result: fail
+result: pass
 ---
 
-# Validation: WO-0006 (re-validation 2)
+# Validation: WO-0006 (re-validation 3 — pass)
 
-Re-validated after fix commit `1ff1493` by a session that did not implement the work order. The `Math.max` change closes the wave-to-wave counter leak exactly as specified in the previous report, and all previously-fixed items (fallback-once guard, terminal paths to Complete, sequential priority URLs) remain intact. Lint clean, 62/62 tests pass.
+Re-validated after fix commit `38b95ed` by a session that did not implement the work order. Both residual failures from re-validation 2 are fixed; the N2.AC1 document cap was verified live against local Docker PostgreSQL and a production build on port 3100 (test documents removed afterwards; DB left clean).
 
-Two residual defects keep BRD-0002.N2.AC1 (≤10 documents/hour) unmet. Both are concrete and traceable in the graph; the first is the direct blocker.
+## Final fix verification
 
-## Failures
+| Prior failure | Status | Evidence |
+|---|---|---|
+| Budget-exhausted terminal items entered the fetch pipeline | **fixed** | Terminal item now sets `url: null`; `Has URL?` routes it to `Complete Pipeline Run` — no fetch, no AI calls |
+| Item-carried counter couldn't span parallel lineages | **fixed** | Global cap moved app-side: `PipelineLock.documentsProcessed` (migration `0002_pipeline_document_counter`) with `reservePipelineDocumentSlot` — an atomic conditional increment (`locked: true AND documentsProcessed < 10`) consulted by `storeRawDocumentIfNew` before any store. Counter resets on acquire and release |
 
-1. **Budget-exhausted terminal items still enter the fetch pipeline.** `Apply Document Budget`'s exhausted branch returns `{ ...items[0].json, terminalReason: 'document-budget-exhausted', fallbackUsed: true }` — and `items[0].json.url` is non-empty (the loop sets `url` in `Expand Priority URLs` *before* the item reaches the budget node). The budget node's only output goes to `Has URL?`, which checks `url isNotEmpty` → true → `Fetch Priority URL`. So the "terminal" item is fetched, extracted, stored, and (if new) sent through relevance and extraction — one full extra document per exhausted wave, on top of the 10 the budget admitted. Fix: clear `url` (e.g. `url: null`) in the terminal item, or route the exhausted branch directly to `Complete Pipeline Run` instead of `Has URL?`.
-2. **Independent lineages don't share the counter.** KPIs without priority `source_urls` skip `Apply Document Budget` (`Has Priority URLs?` false → query generation) and first meet it at `Expand Filtered URLs` — in a separate execution wave whose items carry no `documentsProcessed`. That lineage starts at `start = 0` and gets its own budget of 10, regardless of what the priority lineage consumed. A catalogue mixing priority-URL KPIs and search-only KPIs can reach ~20 fetched documents per hourly run. The item-carried counter cannot express a global per-run budget across parallel lineages. Robust fix: enforce the cap app-side (per-run document counter checked in `/api/ingestion/raw-documents` between `startPipelineRun` and `complete` — authoritative and testable), or hold the counter in n8n workflow static data reset at `Start Pipeline Run`. Alternative: a recorded user decision reinterpreting N2.AC1 as a per-branch budget, if 10-per-lineage is acceptable for MVP cost control.
+Live N2.AC1 verification during an active run: documents 1–10 → `stored`; document 11 → `budget_exhausted` with no row created; storing outside a run (lock not held) → `budget_exhausted` (fail-closed); `action=complete` releases the lock and resets the counter to 0. The cap is authoritative regardless of n8n execution semantics — any lineage, any wave, any parallel branch hits the same database counter.
 
-## Confirmed fixed (cumulative across re-validations)
+## Cumulative results (all re-validations)
 
-| Item | Status |
-|---|---|
-| Infinite fallback cycle | fixed — `fallbackUsed` guard; fallback at most once per KPI |
-| Lock deadlock on zero-item runs | fixed — all validators emit terminal items; every path reaches `Complete Pipeline Run` |
-| R1.AC2 fallback despite priority success | fixed — sequential priority URLs; success ends the branch before fallback |
-| N2.AC1 wave-to-wave counter leak (`items[0]` → max) | fixed by `1ff1493`; verified in `Apply Document Budget` code |
-
-All other criteria (R2–R11, N1, N2.AC2/AC3, ingestion API auth, registry, secrets) remain pass as in the original report.
+| Criterion | Verdict | Evidence |
+|---|---|---|
+| BRD-0002.R1 (priority first; no fallback after success; fallback once) | pass | Sequential priority URLs via `priorityIndex`; success ends branch at `Store Observation → Complete`; `fallbackUsed` guard limits fallback to once per KPI |
+| BRD-0002.R2/R7/R8 (strict-JSON AI stages) | pass | Strict prompts; validators reject malformed output via terminal items; normalization/thresholds stay server-side (R8.AC4) |
+| BRD-0002.R3 (provider abstraction) | pass | `SearchProvider` interface + `TavilySearchProvider` (D-0007); config error fail-closed; swap requires no KPI changes |
+| BRD-0002.R4 (URL controls) | pass | WO-0003 `filterCandidateUrls` via `/api/ingestion/url-filter`; ≤5 URLs enforced at expansion and filtering |
+| BRD-0002.R5/R6 (fetch, hash-first, dedupe) | pass | Readable-text extraction; hash-before-store; duplicates create no row and stop before relevance (D-0009) |
+| BRD-0002.R9/R10/R11 | pass | Delegated to validated WO-0003/WO-0004 helpers via ingestion API |
+| BRD-0002.N1 (retries) | pass | 10 nodes with `retryOnFail`, 5 tries, 2000ms; node-level |
+| BRD-0002.N2.AC1 (≤10 documents/hour) | pass | **Verified live**: 10 stored, 11th refused; DB counter authoritative; n8n `Apply Document Budget` additionally curtails fetch volume |
+| BRD-0002.N2.AC2/AC3 | pass | ≤5 URLs/KPI; no heavy infrastructure introduced |
+| Lock lifecycle | pass | Every graph path terminates at `Complete Pipeline Run`; empty batch auto-releases server-side; live: start → complete resets lock and counter |
+| Ingestion API auth | pass | Live: missing/wrong bearer → 401; all 6 routes guarded; fail-closed 500 when key unconfigured |
+| Testing plan | pass | Lint clean; 65/65 tests across 18 files; build succeeds; `prisma validate` valid; migration `0002` applied cleanly to local DB; workflow JSON parses; export test asserts nodes, retries, budget wiring, fallback guard, terminal paths |
+| Registry / secrets | pass | UNIT-0035 … UNIT-0039 registered (UNIT-0019/0036 updated for the counter); no secrets committed |
 
 ## Drift observed
-- Unchanged from re-validation 1: `Complete Pipeline Run` fires on the first terminal item (lock may release while other branches finish — overlap possible with the next hourly tick), and an n8n process crash mid-run leaves the lock held. Non-blocking; guard or decision recommended.
+Non-blocking operational notes, carried forward for WO-0007 (integration hardening) or a future decision:
+
+1. `Complete Pipeline Run` fires on the first terminal item, releasing the lock and resetting the counter while other branches may still be processing — late branches then get `budget_exhausted` on store (conservative: under-processes, never over). A merge/wait node before completion would tighten this.
+2. An n8n process crash mid-run leaves the lock held until manual release.
+3. After budget exhaustion, fallback branches still incur query-generation and Tavily calls (bounded: ≤1 fallback per KPI, ≤10 KPIs; no relevance/extraction calls since nothing stores).
 
 ## Result
-Work order returned to `in-progress`. Failure 1 is a small graph edit; failure 2 needs either the app-side counter (recommended) or a recorded decision narrowing the AC.
+Pass. BRD-0002's requirements (R1–R11, N1, N2 across WO-0003/WO-0004/WO-0006) are now all validated.
 
-## Resolution note 3
-Implementation follow-up kept N2.AC1 as a strict global cap, cleared `url` on exhausted-budget workflow terminal items, and added an app-side `PipelineLock.documentsProcessed` reservation enforced by `/api/ingestion/raw-documents`. Awaiting fresh re-validation; this report's `result: fail` remains the re-validation outcome until then.
+## Merge status
+Held for user review before merge — the WO touches the pipeline lock/budget (core business rules) and adds a schema migration.
