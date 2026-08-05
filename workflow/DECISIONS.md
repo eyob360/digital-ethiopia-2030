@@ -7,5 +7,6 @@ Index only — one line per decision. Full context lives in `decisions/`. Check 
 - [D-0003](decisions/D-0003-repository-layout.md) — Use a single repository layout
 - [D-0004](decisions/D-0004-project-conventions.md) — Keep default project conventions
 - [D-0005](decisions/D-0005-kpi-admin-ui.md) — Manage KPI definitions through an MVP admin UI
+- [D-0006](decisions/D-0006-initial-kpi-catalogue.md) — Seed MVP with a starter Digital Ethiopia 2030 KPI catalogue
 
 <!-- - [D-0001](decisions/D-0001-example.md) — Chose Postgres over SQLite for production parity -->
