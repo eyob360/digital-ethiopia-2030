@@ -34,6 +34,4 @@ Last drift audit: none
 
 ## Blocked / Needs user input
 
-- WO-0002 — validated (VAL-WO-0002 pass); branch `wo-0002-data-auth-foundation` awaits user review before merge (touches auth)
-
 <!-- - WO-0003 — waiting on decision about payment provider -->
