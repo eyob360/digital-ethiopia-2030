@@ -38,6 +38,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0035](UNIT-0035-ingestion-api-auth.md) — Ingestion API auth — src/server/api/ingestion-auth.ts
 - [UNIT-0036](UNIT-0036-raw-document-service.md) — Raw document service — src/server/raw-documents.ts
 - [UNIT-0037](UNIT-0037-tavily-search-provider.md) — Tavily search provider — src/server/search/tavily.ts
+- [UNIT-0040](UNIT-0040-external-contract-validators.md) — External contract validators — src/lib/integration/external-contracts.ts
 
 ## Endpoints
 

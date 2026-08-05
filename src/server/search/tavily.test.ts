@@ -38,6 +38,17 @@ describe("TavilySearchProvider", () => {
     ]);
   });
 
+  it("surfaces Tavily HTTP failures for n8n node retries", async () => {
+    const provider = new TavilySearchProvider({
+      apiKey: "test-key",
+      fetchImpl: async () => new Response("rate limited", { status: 429 }),
+    });
+
+    await expect(provider.search({ queries: ["digital exports ethiopia"] })).rejects.toThrow(
+      "Tavily search failed with status 429",
+    );
+  });
+
   it("parses non-empty query arrays", () => {
     expect(parseSearchInput({ maxResults: 3, queries: [" one ", "", 5, "two"] })).toEqual({
       maxResults: 3,

@@ -37,6 +37,8 @@ npm run build
 docker compose config
 ```
 
+See [docs/operations.md](docs/operations.md) for the full local integration checklist, n8n dry-run steps, and troubleshooting notes.
+
 ## Database
 
 Prisma migrations are the schema authority.
