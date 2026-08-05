@@ -13,6 +13,11 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0003](UNIT-0003-role-helpers.md) — Role helpers — src/lib/auth/roles.ts
 - [UNIT-0004](UNIT-0004-password-helpers.md) — Password helpers — src/lib/auth/password.ts
 - [UNIT-0008](UNIT-0008-initial-kpi-catalogue.md) — Initial KPI catalogue — src/lib/kpi/initial-catalogue.ts
+- [UNIT-0010](UNIT-0010-fetch-eligibility.md) — Fetch eligibility — src/lib/pipeline/fetch-eligibility.ts
+- [UNIT-0011](UNIT-0011-url-filter.md) — URL filter — src/lib/pipeline/url-filter.ts
+- [UNIT-0012](UNIT-0012-content-hash.md) — Content hash — src/lib/pipeline/content-hash.ts
+- [UNIT-0013](UNIT-0013-observation-normalization.md) — Observation normalization — src/lib/pipeline/normalization.ts
+- [UNIT-0014](UNIT-0014-confidence-gate.md) — Confidence gate — src/lib/pipeline/confidence.ts
 
 ## Services / Validators / API clients
 

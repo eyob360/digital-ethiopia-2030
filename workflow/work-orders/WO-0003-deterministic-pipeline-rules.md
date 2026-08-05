@@ -4,8 +4,8 @@ title: Deterministic pipeline rules
 implements: [BRD-0001.R5, BRD-0002.R4, BRD-0002.R5, BRD-0002.R6, BRD-0002.R9, BRD-0002.R10]
 blueprint: BP-0001
 depends-on: [WO-0002]
-units-touched: []
-status: ready
+units-touched: [UNIT-0010, UNIT-0011, UNIT-0012, UNIT-0013, UNIT-0014]
+status: in-progress
 ---
 
 # WO-0003: Deterministic pipeline rules
@@ -72,6 +72,7 @@ Implement tested TypeScript utilities for all deterministic ingestion rules that
 - Cite and follow [D-0008](../decisions/D-0008-url-domain-filtering.md) and [D-0009](../decisions/D-0009-raw-document-deduplication.md).
 - Keep deterministic business rules in versioned app code, not only in n8n Function nodes.
 - Register reusable utilities/validators in `workflow/registry/`.
+- Search-before-create result: created new pipeline rule utilities because the registry and `src/lib` only contained auth, Prisma, KPI seed, and foundation helpers.
 
 ## Testing plan
 - `npm run lint`
