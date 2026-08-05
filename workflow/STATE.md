@@ -10,9 +10,9 @@ Last drift audit: none
 
 ## BRDs
 
-- [BRD-0001](brds/BRD-0001-kpi-definition-and-pipeline-control.md) — KPI definition and pipeline control — status: draft
-- [BRD-0002](brds/BRD-0002-intelligence-ingestion-pipeline.md) — Intelligence ingestion pipeline — status: draft
-- [BRD-0003](brds/BRD-0003-dashboard-api-and-visualization.md) — Dashboard API and visualization — status: draft
+- [BRD-0001](brds/BRD-0001-kpi-definition-and-pipeline-control.md) — KPI definition and pipeline control — status: approved
+- [BRD-0002](brds/BRD-0002-intelligence-ingestion-pipeline.md) — Intelligence ingestion pipeline — status: approved
+- [BRD-0003](brds/BRD-0003-dashboard-api-and-visualization.md) — Dashboard API and visualization — status: approved
 
 <!-- - [BRD-0001](brds/BRD-0001-example.md) — Example feature — status: draft -->
 

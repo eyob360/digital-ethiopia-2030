@@ -22,7 +22,7 @@ Work through these with the user. Delete the branch that doesn't apply. When all
 - [x] Review **Conventions** in `AGENTS.md` with the user; adjust defaults
 - [x] Write `brds/OVERVIEW.md` with the user (product-level context; see `brds/INSTRUCTIONS.md`)
 - [x] Obtain requirements: ask the user for SRS/requirement document(s) and get them into `srs/` (see "Receiving documents" in `srs/INSTRUCTIONS.md`). If none exists, gather requirements in conversation instead (see `brds/INSTRUCTIONS.md`).
-- [ ] Parse requirements into BRDs and get them approved
+- [x] Parse requirements into BRDs and get them approved
 
 ## New project
 
