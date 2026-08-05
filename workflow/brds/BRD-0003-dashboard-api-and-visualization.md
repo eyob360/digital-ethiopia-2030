@@ -64,6 +64,17 @@ As a decision maker, I want to compare current KPI values with Digital Ethiopia 
 - AC2: When a KPI lacks a `target_value`, the dashboard shall omit target progress for that KPI without treating it as an error.
 - AC3: When target progress is shown, the system shall use the same unit for target and observation values.
 
+### BRD-0003.R6: MVP page set
+As a user, I want a focused set of dashboard and operations pages so that the MVP supports monitoring and configuration without unnecessary screens.
+
+**Acceptance criteria:**
+- AC1: When an authenticated user opens the app, the system shall provide a dashboard overview page.
+- AC2: When an authenticated user selects a KPI, the system shall provide a KPI detail page.
+- AC3: When an authenticated `operator` manages KPI definitions, the system shall provide a KPI admin page.
+- AC4: When an authenticated `operator` monitors ingestion operations, the system shall provide a pipeline status/runs page.
+- AC5: When a user authenticates or manages basic session/account state, the system shall provide login/account basics.
+- AC6: When a `viewer` navigates the app, the system shall hide or deny operator-only pages and actions.
+
 ## Non-functional requirements
 
 ### BRD-0003.N1: Separation of concerns
@@ -75,4 +86,4 @@ As a decision maker, I want to compare current KPI values with Digital Ethiopia 
 - Multi-language processing.
 
 ## Open questions
-- What visual pages are required beyond overview and KPI detail?
+None.

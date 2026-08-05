@@ -13,5 +13,6 @@ Index only — one line per decision. Full context lives in `decisions/`. Check 
 - [D-0009](decisions/D-0009-raw-document-deduplication.md) — Hash content before storing new raw documents
 - [D-0010](decisions/D-0010-dashboard-auth-roles.md) — Require login with operator and viewer roles
 - [D-0011](decisions/D-0011-review-flag-scope.md) — Show review-flagged observations without approval/rejection in MVP
+- [D-0012](decisions/D-0012-mvp-page-set.md) — MVP includes overview, KPI detail, KPI admin, pipeline status, and login/account pages
 
 <!-- - [D-0001](decisions/D-0001-example.md) — Chose Postgres over SQLite for production parity -->
