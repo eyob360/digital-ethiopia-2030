@@ -5,31 +5,30 @@ date: 2026-08-05
 result: fail
 ---
 
-# Validation: WO-0006 (re-validation)
+# Validation: WO-0006 (re-validation 2)
 
-Re-validated after fix commit `e474872` by a session that did not implement the work order. Three of the four original failures are confirmed fixed by graph inspection; one narrow residual defect remains in the document budget, so the result is fail — but the remaining fix is a one-liner.
+Re-validated after fix commit `1ff1493` by a session that did not implement the work order. The `Math.max` change closes the wave-to-wave counter leak exactly as specified in the previous report, and all previously-fixed items (fallback-once guard, terminal paths to Complete, sequential priority URLs) remain intact. Lint clean, 62/62 tests pass.
 
-## Original failures — status after fix
-
-| Original failure | Status | Evidence |
-|---|---|---|
-| 1. Infinite fallback cycle | **fixed** | `Mark Fallback Used` sets `fallbackUsed: true` before query generation; `Expand Filtered URLs` stamps all fallback items `fallbackUsed: true`; `More Priority URLs?` requires `sourceType === 'priority' && !fallbackUsed`, so a failed fallback item routes to `Fallback Already Used?` → true → `Complete Pipeline Run`. Fallback runs at most once per KPI; no cycle remains |
-| 2. Lock deadlock on zero-item runs | **fixed** | All validators now emit terminal items (`terminalReason`) instead of empty arrays; new `Has URL?`/`Has Raw Text?`/`Has * JSON?` gates route every dead end to `More Priority URLs?` or `Complete Pipeline Run`. Every path through the graph terminates at Complete, so the lock is always released by the run that holds it |
-| 3. N2.AC1 ≤10 documents/hour | **partially fixed — residual defect below** | `Apply Document Budget` now exists between URL expansion and fetching, admits `10 - start` items per wave, and emits `document-budget-exhausted` terminals |
-| 4. R1.AC2 fallback despite priority success | **fixed** | Priority URLs now process sequentially (one URL per pass via `priorityIndex` + `Increment Priority Index`); a stored, relevant, extracted observation goes `Store Observation → Complete` and never reaches the fallback branch. Fallback only triggers after priority URLs are exhausted without a valid observation (also satisfies R1.AC3) |
-
-All other criteria from the original validation table (R2, R3, R4, R5/R6, R7/R8, R9/R10/R11, N1, N2.AC2/AC3, ingestion API auth, registry, secrets) remain pass; `npm run lint` clean, `npm test` 62/62 across 18 files, workflow JSON parses, and the export test now also asserts the budget node, fallback guard, and terminal-path wiring.
+Two residual defects keep BRD-0002.N2.AC1 (≤10 documents/hour) unmet. Both are concrete and traceable in the graph; the first is the direct blocker.
 
 ## Failures
 
-1. **BRD-0002.N2.AC1 residual: the document budget leaks across execution waves.** `Apply Document Budget` reads the running count from `items[0]` (`const start = Number(items[0]?.json?.documentsProcessed ?? 0)`). Items in a wave carry different counts, and `items[0]` has the lowest. Concrete trace with 10 KPIs whose priority URLs all yield duplicates: wave 1 admits 10 fetches (counts 1..10); the loop re-enters with those items, `start = 1`, so wave 2 admits 9 more (total 19); subsequent waves admit 8, 7, 6 — up to **40 fetched documents in one hourly run** against the AC's cap of 10. Fix is one line: derive `start` from the maximum incoming count (`Math.max(0, ...items.map((item) => Number(item.json.documentsProcessed ?? 0)))`) — or keep the count in n8n workflow static data instead of item JSON.
+1. **Budget-exhausted terminal items still enter the fetch pipeline.** `Apply Document Budget`'s exhausted branch returns `{ ...items[0].json, terminalReason: 'document-budget-exhausted', fallbackUsed: true }` — and `items[0].json.url` is non-empty (the loop sets `url` in `Expand Priority URLs` *before* the item reaches the budget node). The budget node's only output goes to `Has URL?`, which checks `url isNotEmpty` → true → `Fetch Priority URL`. So the "terminal" item is fetched, extracted, stored, and (if new) sent through relevance and extraction — one full extra document per exhausted wave, on top of the 10 the budget admitted. Fix: clear `url` (e.g. `url: null`) in the terminal item, or route the exhausted branch directly to `Complete Pipeline Run` instead of `Has URL?`.
+2. **Independent lineages don't share the counter.** KPIs without priority `source_urls` skip `Apply Document Budget` (`Has Priority URLs?` false → query generation) and first meet it at `Expand Filtered URLs` — in a separate execution wave whose items carry no `documentsProcessed`. That lineage starts at `start = 0` and gets its own budget of 10, regardless of what the priority lineage consumed. A catalogue mixing priority-URL KPIs and search-only KPIs can reach ~20 fetched documents per hourly run. The item-carried counter cannot express a global per-run budget across parallel lineages. Robust fix: enforce the cap app-side (per-run document counter checked in `/api/ingestion/raw-documents` between `startPipelineRun` and `complete` — authoritative and testable), or hold the counter in n8n workflow static data reset at `Start Pipeline Run`. Alternative: a recorded user decision reinterpreting N2.AC1 as a per-branch budget, if 10-per-lineage is acceptable for MVP cost control.
+
+## Confirmed fixed (cumulative across re-validations)
+
+| Item | Status |
+|---|---|
+| Infinite fallback cycle | fixed — `fallbackUsed` guard; fallback at most once per KPI |
+| Lock deadlock on zero-item runs | fixed — all validators emit terminal items; every path reaches `Complete Pipeline Run` |
+| R1.AC2 fallback despite priority success | fixed — sequential priority URLs; success ends the branch before fallback |
+| N2.AC1 wave-to-wave counter leak (`items[0]` → max) | fixed by `1ff1493`; verified in `Apply Document Budget` code |
+
+All other criteria (R2–R11, N1, N2.AC2/AC3, ingestion API auth, registry, secrets) remain pass as in the original report.
 
 ## Drift observed
-- `Complete Pipeline Run` executes as soon as the first terminal item reaches it, releasing the lock while other KPI branches may still be processing. Release is idempotent and BRD-0001.R6.AC4 only requires release on completion, so this is not an AC violation — but a subsequent hourly tick could then overlap with the tail of the previous run. Worth a cheap guard later (e.g. complete only after a merge/wait node) or a recorded decision that overlap is acceptable.
-- If the n8n process itself crashes mid-run, the lock stays held until the next successful manual release — inherent to the design; operational note only.
+- Unchanged from re-validation 1: `Complete Pipeline Run` fires on the first terminal item (lock may release while other branches finish — overlap possible with the next hourly tick), and an n8n process crash mid-run leaves the lock held. Non-blocking; guard or decision recommended.
 
 ## Result
-Work order returned to `in-progress`. Only failure 1 (budget leak) blocks re-validation; everything else is confirmed fixed.
-
-## Resolution note 2
-Implementation follow-up changed `Apply Document Budget` to compute `start` from the maximum incoming `documentsProcessed` value instead of `items[0]`, closing the residual N2.AC1 budget leak. Awaiting fresh re-validation; this report's `result: fail` remains the re-validation outcome until then.
+Work order returned to `in-progress`. Failure 1 is a small graph edit; failure 2 needs either the app-side counter (recommended) or a recorded decision narrowing the AC.
