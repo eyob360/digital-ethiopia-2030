@@ -61,7 +61,7 @@ Reset local database state when destructive reset is acceptable:
 npm run db:reset
 ```
 
-`db:reset` drops and recreates local data. Use it only against a disposable local database.
+`db:reset` drops and recreates local data. Use it only against a disposable local database, and do not run it as part of automated validation without explicit operator approval.
 
 ## Full Checks
 
