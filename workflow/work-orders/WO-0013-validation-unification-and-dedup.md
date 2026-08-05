@@ -5,7 +5,7 @@ implements: none
 blueprint: none
 depends-on: [WO-0010]
 units-touched: []
-status: draft
+status: ready
 ---
 
 # WO-0013: Validation-source unification and duplication cleanup

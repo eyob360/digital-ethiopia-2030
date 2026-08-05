@@ -127,7 +127,7 @@ As a decision maker, I want every accepted KPI value retained historically so th
 ### BRD-0002.N2: MVP cost controls
 - AC1: When the pipeline runs, the system shall process no more than 10 documents per hour.
 - AC2: When the pipeline runs, the system shall process no more than 5 URLs per KPI.
-- AC3: When the MVP is implemented, the system shall not require a vector database, distributed processing, data warehouse, paid data APIs, complex ML models, real-time streaming, multi-language processing, or advanced entity resolution.
+- AC3: When the MVP is implemented, the system shall not require a vector database, distributed processing, data warehouse, paid data APIs other than the LLM and configured fallback search-provider APIs (D-0007, D-0020), complex ML models, real-time streaming, multi-language processing, or advanced entity resolution.
 
 ## Out of scope
 - Human validation interface.

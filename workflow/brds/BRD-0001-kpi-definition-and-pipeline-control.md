@@ -75,7 +75,7 @@ As a technical operator, I want only one pipeline execution at a time so that du
 ## Non-functional requirements
 
 ### BRD-0001.N1: Operational simplicity
-- AC1: When running the MVP pipeline, the system shall avoid distributed processing, vector databases, data warehouses, and paid data APIs other than the LLM API.
+- AC1: When running the MVP pipeline, the system shall avoid distributed processing, vector databases, data warehouses, and paid data APIs other than the LLM API and the configured fallback search-provider API (D-0007, D-0020).
 
 ## Out of scope
 - Automatic creation of new KPI definitions from web content.

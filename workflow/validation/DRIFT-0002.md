@@ -12,13 +12,13 @@ Covers the ~34 commits since DRIFT-0001's endpoint (`b379055`): WO-0005 (dashboa
 
 1. **Pipeline lock released by first-finishing branch; budget guard dead; no crash recovery** — contradicts BRD-0001.R6.AC4 and BRD-0002.N2.AC1. `releasePipelineLock` (`src/server/pipeline.ts:39`) resets `documentsProcessed` and is reachable from four terminal n8n branches while `Expand KPI Batch` fans out ~10 parallel branches; the n8n `Apply Document Budget` node reads `item.json.documentsProcessed`, which nothing emits; `lockedAt` is written but never read. → **WO-0009**.
 2. **Fallback search unreachable for rejected candidates** — contradicts BRD-0002.R1.AC3. `POST /api/ingestion/observations` 422s on rejection and `onError: continueRegularOutput` routes to `Complete Pipeline Run`, bypassing `Mark Fallback Used`. → **WO-0010**.
-3. **URL filtering is a hardcoded allowlist with no config path** — contradicts BRD-0002.R4.AC6/AC7 (drops itu.int, gsma.com, un.org, ecc.gov.et, addisstandard.com; only caller sends `{urls, maxUrls}`). → **WO-0011** (blocked on user policy decision).
-4. **Tavily (D-0007) vs "no paid data APIs other than the LLM API"** (BRD-0001.N1.AC1, BRD-0002.N2.AC3) — recorded decision and requirement conflict; user ruling requested. → **WO-0012** note / STATE Blocked.
+3. **URL filtering is a hardcoded allowlist with no config path** — contradicts BRD-0002.R4.AC6/AC7 (drops itu.int, gsma.com, un.org, ecc.gov.et, addisstandard.com; only caller sends `{urls, maxUrls}`). → **WO-0011** (policy settled in D-0019: blocklist-with-default-allow, DB + admin UI).
+4. **Tavily (D-0007) vs "no paid data APIs other than the LLM API"** (BRD-0001.N1.AC1, BRD-0002.N2.AC3) — recorded decision and requirement conflicted. *Resolved 2026-08-05:* D-0020 revised both ACs to permit the configured fallback search-provider API.
 
 ## Traceability and evidence gaps (repaired)
 
 - BRD-0001.N1 and BRD-0003.N1 appeared in no WO `implements:` and no validation report — the `validated` gates were never met. BRD-0001/0003 rolled back to `approved`; coverage planned in **WO-0012** (D-0017).
-- WO-0005's behavioral accessibility criteria were passed on markup inspection; reclassified `blocked` under the typed-evidence rules; WO-0005 back to `done` (VAL-WO-0005 updated; user to arrange tooling or waive).
+- WO-0005's behavioral accessibility criteria were passed on markup inspection; reclassified `blocked` under the typed-evidence rules; WO-0005 back to `done` (VAL-WO-0005 updated; re-validation tooling decided in D-0018).
 - BRD-0002 remains `validated`: its reports rest on executed evidence; the regressions above are handled as bug-fix WOs per D-0017.
 
 ## Quality residue (tracked)

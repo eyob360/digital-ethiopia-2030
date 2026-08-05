@@ -20,4 +20,6 @@ superseded-by:
 4. **Quality residue** goes into maintenance WOs (WO-0013, WO-0014), `implements: none`.
 5. **Process.** One WO per fresh session; validation follows the refutation stance with typed evidence (behavioral claims need executed evidence); WO-0009 (lock/budget — data integrity) and WO-0014 (ingestion-key comparison — auth) wait for user review before merge. Merged history is not rewritten (merge commit `6a43236` stays).
 
+**Update 2026-08-05:** the user delegated the three open rework decisions and the readiness review of WO-0009–WO-0014 to the agent ("you can decide what's best"). Outcomes recorded in D-0018 (accessibility tooling), D-0019 (URL filtering policy/config), D-0020 (search-provider NFR exception); all six WOs marked `ready`.
+
 **Why:** The completion claim rested on traceability gaps (uncovered NFRs), inspection-graded behavioral criteria, and functional defects found on re-review. Rolling back only what factually failed its gate — rather than everything — keeps validated evidence standing where it is genuinely executed and scopes the rework to real gaps.

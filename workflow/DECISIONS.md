@@ -19,5 +19,8 @@ Index only — one line per decision. Full context lives in `decisions/`. Check 
 - [D-0015](decisions/D-0015-development-approach.md) — Use spec-first development
 - [D-0016](decisions/D-0016-auth-database-dependencies.md) — Use stable NextAuth v4 and Prisma PostgreSQL adapter dependencies
 - [D-0017](decisions/D-0017-mvp-completion-rework.md) — MVP completion rejected; rework via rollbacks, fix WOs, and refutation-stance validation
+- [D-0018](decisions/D-0018-accessibility-validation-tooling.md) — Add Playwright + axe-core for executed accessibility evidence (no waiver)
+- [D-0019](decisions/D-0019-url-filtering-policy-and-config.md) — URL filtering is blocklist-with-default-allow, DB-backed, admin-UI editable
+- [D-0020](decisions/D-0020-search-provider-nfr-exception.md) — Fallback search-provider API allowed as NFR exception; BRD-0001.N1/BRD-0002.N2 revised
 
 <!-- - [D-0001](decisions/D-0001-example.md) — Chose Postgres over SQLite for production parity -->

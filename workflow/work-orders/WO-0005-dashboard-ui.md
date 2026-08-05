@@ -66,7 +66,7 @@ Build the MVP user-facing pages using the route SSOT and locked component style:
 - `npm test`
 - `npm run build`
 - Manual responsive inspection at desktop and mobile widths.
-- Accessibility-focused checks for keyboard access, visible focus, text contrast, and role-based navigation visibility.
+- Accessibility-focused checks for keyboard access, visible focus, text contrast, and role-based navigation visibility — executed via Playwright + axe-core per [D-0018](../decisions/D-0018-accessibility-validation-tooling.md): axe WCAG 2.2 AA scan plus scripted keyboard-navigation and focus-visibility checks (validation-tier cost; devDependencies to be added at re-validation).
 
 ## Completion evidence
 - 2026-08-05: `npm run lint` passed.

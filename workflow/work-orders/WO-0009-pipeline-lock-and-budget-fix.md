@@ -5,7 +5,7 @@ implements: [BRD-0001.R6, BRD-0002.N2]
 blueprint: BP-0001
 depends-on: none
 units-touched: []
-status: draft
+status: ready
 ---
 
 # WO-0009: Pipeline lock lifecycle and document budget fix
@@ -37,7 +37,7 @@ The pipeline's concurrency lock and document budget are broken in three related 
 ### BRD-0002.N2: MVP cost controls
 - AC1: When the pipeline runs, the system shall process no more than 10 documents per hour. **(Currently violated in effect: the first-finisher release zeroes `documentsProcessed` mid-run, re-opening the budget; the n8n-side guard is dead code.)**
 - AC2: When the pipeline runs, the system shall process no more than 5 URLs per KPI.
-- AC3: When the MVP is implemented, the system shall not require a vector database, distributed processing, data warehouse, paid data APIs, complex ML models, real-time streaming, multi-language processing, or advanced entity resolution.
+- AC3: When the MVP is implemented, the system shall not require a vector database, distributed processing, data warehouse, paid data APIs other than the LLM and configured fallback search-provider APIs (D-0007, D-0020), complex ML models, real-time streaming, multi-language processing, or advanced entity resolution.
 
 ## Implementation notes
 - Evidence trail: VAL-WO-0006 "Drift observed" notes 1 and 2 flagged exactly these gaps (first-terminal release; crash leaves lock held); D-0017 records the rework decision.
