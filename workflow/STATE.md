@@ -2,7 +2,7 @@
 
 Index only — one line per item. Details and status live in each item's frontmatter. Keep every line current. When a BRD is fully validated, move its lines (and its blueprints/work orders) to `ARCHIVE.md` — this file holds active work only.
 
-Last drift audit: none
+Last drift audit: b379055 (2026-08-05)
 
 ## Setup
 
