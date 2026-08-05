@@ -35,4 +35,4 @@ None against BRDs, BP-0001, D-0011, D-0012, or D-0013. Notes:
 None.
 
 ## Merge status
-Held for user review before merge — the WO modifies `src/proxy.ts` (auth middleware) and adds role-gated pages, which conventions flag for user review even after validation passes.
+Released for merge after user validation/review.

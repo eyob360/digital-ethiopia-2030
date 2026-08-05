@@ -35,6 +35,4 @@ Last drift audit: b379055 (2026-08-05)
 
 ## Blocked / Needs user input
 
-- WO-0005 — validated (VAL-WO-0005 pass); branch `wo-0005-dashboard-ui` awaits user review before merge (touches auth middleware and role-gated pages)
-
 <!-- - WO-0003 — waiting on decision about payment provider -->
