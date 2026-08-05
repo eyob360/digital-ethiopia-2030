@@ -1,4 +1,4 @@
-import { releasePipelineLock, startPipelineRun } from "@/server/pipeline";
+import { completePipelineRunBranch, startPipelineRun } from "@/server/pipeline";
 import { requireIngestionApiKey } from "@/server/api/ingestion-auth";
 import { jsonError, jsonOk, readJsonBody } from "@/server/api/responses";
 
@@ -17,8 +17,18 @@ export async function POST(request: Request) {
   }
 
   if (action === "complete") {
-    return jsonOk({ lock: await releasePipelineLock() });
+    const runId = asNonEmptyString((body as Record<string, unknown>).runId);
+    const branchKey = asNonEmptyString((body as Record<string, unknown>).branchKey);
+    if (!runId || !branchKey) {
+      return jsonError("Pipeline completion requires runId and branchKey", 400);
+    }
+
+    return jsonOk(await completePipelineRunBranch({ runId, branchKey }));
   }
 
   return jsonError("Unsupported ingestion pipeline action", 400);
+}
+
+function asNonEmptyString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
 }

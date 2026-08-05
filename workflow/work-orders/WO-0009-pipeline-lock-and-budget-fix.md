@@ -4,8 +4,8 @@ title: Pipeline lock lifecycle and document budget fix
 implements: [BRD-0001.R6, BRD-0002.N2]
 blueprint: BP-0001
 depends-on: none
-units-touched: []
-status: ready
+units-touched: [UNIT-0019, UNIT-0036, UNIT-0039]
+status: done
 ---
 
 # WO-0009: Pipeline lock lifecycle and document budget fix

@@ -64,7 +64,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const kpis = $json.kpis ?? [];\nreturn kpis.map((kpi) => ({ json: { kpi } }));"
+        "jsCode": "const kpis = $json.kpis ?? [];\nreturn kpis.map((kpi) => ({ json: { runId: $json.runId, branchKey: kpi.id, kpi } }));"
       },
       "id": "expand-kpis",
       "name": "Expand KPI Batch",
@@ -108,16 +108,6 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1320, -260]
-    },
-    {
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst start = Math.max(0, ...items.map((item) => Number(item.json.documentsProcessed ?? 0)).filter(Number.isFinite));\nconst remaining = Math.max(0, 10 - start);\nif (!items.length || remaining === 0) return [{ json: { ...(items[0]?.json ?? {}), url: null, terminalReason: 'document-budget-exhausted', fallbackUsed: true } }];\nreturn items.slice(0, remaining).map((item, index) => ({ json: { ...item.json, documentsProcessed: start + index + 1 } }));"
-      },
-      "id": "apply-document-budget",
-      "name": "Apply Document Budget",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1430, -80]
     },
     {
       "parameters": {
@@ -193,7 +183,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\"sourceUrl\": $json.url, \"rawText\": $json.rawText}"
+        "jsonBody": "={\"sourceUrl\": $json.url, \"rawText\": $json.rawText, \"runId\": $json.runId, \"branchKey\": $json.branchKey, \"kpi\": $json.kpi, \"fallbackUsed\": $json.fallbackUsed, \"candidateUrls\": $json.candidateUrls, \"priorityIndex\": $json.priorityIndex, \"sourceType\": $json.sourceType}"
       },
       "id": "store-raw-document",
       "name": "Store Raw Document",
@@ -377,7 +367,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }]; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }];\nreturn [{ json: { kpiId: $json.kpi.id, rawDocumentId: $json.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: $json.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation, fallbackUsed: $json.fallbackUsed } }];"
+        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }]; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }];\nreturn [{ json: { runId: $json.runId, branchKey: $json.branchKey, kpiId: $json.kpi.id, rawDocumentId: $json.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: $json.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation, fallbackUsed: $json.fallbackUsed } }];"
       },
       "id": "validate-extraction-json",
       "name": "Validate Extraction JSON",
@@ -562,7 +552,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "{\"action\":\"complete\"}"
+        "jsonBody": "={\"action\":\"complete\", \"runId\": $json.runId ?? $('Start Pipeline Run').first().json.runId, \"branchKey\": $json.branchKey ?? $json.kpiId ?? $json.observation?.kpiId ?? $json.kpi?.id}"
       },
       "id": "complete-run",
       "name": "Complete Pipeline Run",
@@ -601,9 +591,6 @@
       ]
     },
     "Expand Priority URLs": {
-      "main": [[{ "node": "Apply Document Budget", "type": "main", "index": 0 }]]
-    },
-    "Apply Document Budget": {
       "main": [[{ "node": "Has URL?", "type": "main", "index": 0 }]]
     },
     "Has URL?": {
@@ -703,7 +690,7 @@
       "main": [[{ "node": "Expand Filtered URLs", "type": "main", "index": 0 }]]
     },
     "Expand Filtered URLs": {
-      "main": [[{ "node": "Apply Document Budget", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Has URL?", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
@@ -711,5 +698,5 @@
     "timezone": "Africa/Addis_Ababa"
   },
   "pinData": {},
-  "versionId": "digital-ethiopia-2030-wo-0006"
+  "versionId": "digital-ethiopia-2030-wo-0009"
 }

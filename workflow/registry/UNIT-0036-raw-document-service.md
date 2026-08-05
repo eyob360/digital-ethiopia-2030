@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `parseRawDocumentInput(input)`, `storeRawDocumentIfNew(input, client)`, and `serializeRawDocument(rawDocument)`.
 
-**Variants/options:** Returns `stored` for new content, `duplicate` for existing content, and `budget_exhausted` when the active pipeline run has already processed 10 documents.
+**Variants/options:** Returns `stored` for new content, `duplicate` for existing content, and `budget_exhausted` when the active pipeline run has already processed 10 documents. For n8n ingestion payloads, it echoes workflow context fields such as `runId`, `branchKey`, and `kpi` so downstream branch completion can use the authoritative run metadata.

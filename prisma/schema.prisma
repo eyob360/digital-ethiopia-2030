@@ -117,11 +117,15 @@ model KpiObservation {
 }
 
 model PipelineLock {
-  name               PipelineLockName @id
-  locked             Boolean          @default(false)
-  lockedAt           DateTime?        @map("locked_at")
-  documentsProcessed Int              @default(0) @map("documents_processed")
-  updatedAt          DateTime         @updatedAt @map("updated_at")
+  name                PipelineLockName @id
+  locked              Boolean          @default(false)
+  lockedAt            DateTime?        @map("locked_at")
+  runId               String?          @map("run_id")
+  branchesTotal       Int              @default(0) @map("branches_total")
+  branchesCompleted   Int              @default(0) @map("branches_completed")
+  completedBranchKeys String[]         @default([]) @map("completed_branch_keys")
+  documentsProcessed  Int              @default(0) @map("documents_processed")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
 
   @@map("pipeline_locks")
 }

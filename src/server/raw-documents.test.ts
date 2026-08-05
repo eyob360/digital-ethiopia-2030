@@ -26,7 +26,15 @@ describe("raw document ingestion service", () => {
     };
 
     const result = await storeRawDocumentIfNew(
-      { rawText: "Readable source text", sourceUrl: "https://statsethiopia.gov.et/report" },
+      {
+        rawText: "Readable source text",
+        sourceUrl: "https://statsethiopia.gov.et/report",
+        workflowContext: {
+          runId: "run-1",
+          branchKey: "kpi-1",
+          kpi: { id: "kpi-1", name: "Access" },
+        },
+      },
       client as never,
     );
 
@@ -35,6 +43,9 @@ describe("raw document ingestion service", () => {
       throw new Error("expected stored raw document");
     }
     expect(result.rawDocument.id).toBe("raw-1");
+    expect(result.runId).toBe("run-1");
+    expect(result.branchKey).toBe("kpi-1");
+    expect(result.kpi).toEqual({ id: "kpi-1", name: "Access" });
     expect(result.contentHash).toMatch(/^[a-f0-9]{64}$/);
     expect(created).toHaveLength(1);
   });
@@ -100,10 +111,19 @@ describe("raw document ingestion service", () => {
 
   it("parses required raw document input fields", () => {
     expect(
-      parseRawDocumentInput({ rawText: " text ", sourceUrl: " https://example.com " }),
+      parseRawDocumentInput({
+        rawText: " text ",
+        sourceUrl: " https://example.com ",
+        runId: "run-1",
+        branchKey: "kpi-1",
+      }),
     ).toEqual({
       rawText: "text",
       sourceUrl: "https://example.com",
+      workflowContext: {
+        runId: "run-1",
+        branchKey: "kpi-1",
+      },
     });
     expect(parseRawDocumentInput({ rawText: "", sourceUrl: "https://example.com" })).toBeNull();
   });

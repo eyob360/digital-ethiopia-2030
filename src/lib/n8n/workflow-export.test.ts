@@ -29,7 +29,6 @@ describe("n8n ingestion workflow export", () => {
         "Expand KPI Batch",
         "Priority URLs First",
         "Fetch Priority URL",
-        "Apply Document Budget",
         "Fallback Already Used?",
         "More Priority URLs?",
         "Increment Priority Index",
@@ -90,7 +89,7 @@ describe("n8n ingestion workflow export", () => {
     }
   });
 
-  it("uses priority sources before fallback search and releases successful runs", () => {
+  it("uses priority sources before fallback search and releases only through branch completion", () => {
     expect(JSON.stringify(workflow.connections["Has Priority URLs?"])).toContain(
       "Expand Priority URLs",
     );
@@ -112,18 +111,22 @@ describe("n8n ingestion workflow export", () => {
     expect(JSON.stringify(workflow.connections["Store Observation"])).toContain(
       "Complete Pipeline Run",
     );
+    expect(findNode("Expand KPI Batch").parameters?.jsCode).toContain("runId: $json.runId");
+    expect(findNode("Expand KPI Batch").parameters?.jsCode).toContain("branchKey: kpi.id");
+    expect(findNode("Complete Pipeline Run").parameters?.jsonBody).toContain('"runId"');
+    expect(findNode("Complete Pipeline Run").parameters?.jsonBody).toContain('"branchKey"');
   });
 
-  it("caps document fetch branches and routes malformed terminal paths to completion", () => {
-    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("10 - start");
-    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain(
-      "Math.max(0, ...items.map",
-    );
-    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("url: null");
-    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("documentsProcessed");
-    expect(outgoingNodeNames("Expand Priority URLs")).toEqual(["Apply Document Budget"]);
-    expect(outgoingNodeNames("Expand Filtered URLs")).toEqual(["Apply Document Budget"]);
-    expect(outgoingNodeNames("Apply Document Budget")).toEqual(["Has URL?"]);
+  it("uses the app raw-document endpoint as the document budget authority", () => {
+    expect(nodeNames()).not.toContain("Apply Document Budget");
+    expect(JSON.stringify(workflow.nodes)).not.toContain("documentsProcessed");
+    expect(outgoingNodeNames("Expand Priority URLs")).toEqual(["Has URL?"]);
+    expect(outgoingNodeNames("Expand Filtered URLs")).toEqual(["Has URL?"]);
+    expect(findNode("Store Raw Document").parameters?.jsonBody).toContain('"runId"');
+    expect(findNode("Store Raw Document").parameters?.jsonBody).toContain('"branchKey"');
+  });
+
+  it("routes malformed terminal paths to branch completion", () => {
     expect(outgoingNodeNames("Has URL?")).toEqual(
       expect.arrayContaining(["Fetch Priority URL", "Complete Pipeline Run"]),
     );

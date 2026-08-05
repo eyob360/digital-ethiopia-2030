@@ -23,9 +23,9 @@ This folder contains the versioned n8n workflow source for WO-0006.
 5. If the lock is already held, the workflow exits without loading KPIs because it did not acquire the lock.
 6. When a KPI has priority URLs, the workflow tries them sequentially. A stored observation completes the run path for that KPI; failed priority URLs advance to the next priority URL, and fallback begins only after the final priority URL fails.
 7. If a branch enters fallback, it sets `fallbackUsed=true` before requesting OpenAI-generated queries. Duplicate, irrelevant, invalid, or empty fallback branches do not re-enter fallback.
-8. Before any document fetch, the workflow passes URL items through `Apply Document Budget`, which tracks `documentsProcessed`, uses the maximum incoming count across execution waves, clears the URL on exhausted-budget terminal items, and emits at most 10 document branches for the hourly run.
-9. The app raw-document endpoint also enforces the same 10-document limit atomically on the ingestion lock row, so parallel priority and fallback lineages share one authoritative per-run cap.
-10. Terminal paths that can otherwise produce zero surviving items route to `Complete Pipeline Run`, which calls `/api/ingestion/pipeline/runs` with `action=complete` so an acquired lock is released.
+8. Each KPI branch carries the `runId` from `/api/ingestion/pipeline/runs` plus a `branchKey` based on the KPI id.
+9. The app raw-document endpoint enforces the 10-document limit atomically on the ingestion lock row, so parallel priority and fallback lineages share one authoritative per-run cap.
+10. Terminal paths that can otherwise produce zero surviving items route to `Complete Pipeline Run`, which calls `/api/ingestion/pipeline/runs` with `action=complete`, `runId`, and `branchKey`. The app releases the lock only after every KPI branch has reported terminal completion.
 
 ## Retry Policy
 HTTP fetches, OpenAI calls, and app/database-backed ingestion API calls use n8n node retries: 5 tries with 2 seconds between tries. Retry is configured at the node level so earlier successful nodes in the branch are not rerun.
@@ -34,5 +34,8 @@ HTTP fetches, OpenAI calls, and app/database-backed ingestion API calls use n8n 
 - The pipeline runs hourly.
 - The app batch loader caps KPI definitions at 10 per run.
 - Candidate URL filtering caps source URLs at 5 per KPI.
-- `Apply Document Budget` caps document fetch/store branches at 10 per hourly run by carrying the maximum `documentsProcessed` count forward between waves; `/api/ingestion/raw-documents` is the authoritative cross-lineage counter.
+- `/api/ingestion/raw-documents` is the authoritative cross-lineage counter and refuses documents after 10 stored or duplicate-checked documents in an active run.
 - The workflow has no vector database, queue, warehouse, real-time stream, paid data API beyond configured providers, custom ML model, multilingual processing, or advanced entity resolution.
+
+## Crash Recovery
+- `PIPELINE_LOCK_STALE_AFTER_MINUTES` controls stale-lock recovery in the app. If unset, a lock older than 120 minutes is considered stale on the next start attempt and can be acquired for a new run.

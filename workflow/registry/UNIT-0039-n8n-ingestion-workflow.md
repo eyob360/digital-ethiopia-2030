@@ -12,4 +12,4 @@ status: active
 
 **Interface:** Importable n8n workflow export plus operational notes in `n8n/README.md`.
 
-**Variants/options:** Runs hourly and uses app ingestion API boundaries for deterministic rules and database-backed operations.
+**Variants/options:** Runs hourly and uses app ingestion API boundaries for deterministic rules and database-backed operations. KPI branches carry `runId`/`branchKey` from start through terminal completion; document budget enforcement is delegated to the raw-document endpoint's database counter.
