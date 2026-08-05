@@ -52,6 +52,9 @@ As a technical operator, I want bounded web search so that the MVP avoids crawle
 - AC2: When candidate URLs are gathered, the system shall remove duplicate URLs.
 - AC3: When candidate URLs are gathered, the system shall remove invalid domains according to configured filtering rules.
 - AC4: When candidate URL filtering completes, the system shall pass no more than 5 URLs to content fetching for a KPI.
+- AC5: When filtering candidate URLs, the system shall block social/media aggregators, search-result pages, URL shorteners, file-sharing pages, login-only sites, and low-signal forums by default.
+- AC6: When filtering candidate URLs, the system shall allow official government, regulator, telecom, development-partner, recognized news, and statistics sources by default.
+- AC7: When default filtering rules are insufficient, the system shall allow operators to configure blocked and allowed domains without code changes.
 
 ### BRD-0002.R5: Content fetching and raw document storage
 As a technical operator, I want fetched source content stored so that observations can be audited back to evidence.
@@ -131,5 +134,4 @@ As a decision maker, I want every accepted KPI value retained historically so th
 - Vector search or chatbot behavior.
 
 ## Open questions
-- What domains should be considered invalid or blocked during URL filtering?
 - Should raw documents be stored before or after duplicate detection when the same content hash already exists?
