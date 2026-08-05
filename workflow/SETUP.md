@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 type: web-app    # web-app | cli | data-pipeline | mobile | library | ... (informational for now)
 modules: [design-tokens, design-system, page-map]      # opted-in extras beyond the core pipeline — see modules/INSTRUCTIONS.md
 framework-version: 4cf20c0   # optional — commit hash of the framework template this was copied from
@@ -27,7 +27,7 @@ Work through these with the user. Delete the branch that doesn't apply. When all
 ## New project
 
 - [x] Ask the user for the stack and commands; fill in **Commands & stack** in `AGENTS.md`
-- [ ] Ask the user which development approach they want, explaining the options:
+- [x] Ask the user which development approach they want, explaining the options:
   - **Spec-first** (default) — requirements approved before implementation
   - **Prototype-first** — frontend-only prototype to discover UX requirements, then backend integration; suits UX-heavy products or unsettled requirements (mechanics in `blueprints/INSTRUCTIONS.md`)
   Record the choice in `decisions/`.

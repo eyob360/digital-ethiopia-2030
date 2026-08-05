@@ -6,8 +6,6 @@ Last drift audit: none
 
 ## Setup
 
-- [Setup](SETUP.md) — project setup checklist — status: in-progress
-
 ## BRDs
 
 - [BRD-0001](brds/BRD-0001-kpi-definition-and-pipeline-control.md) — KPI definition and pipeline control — status: approved

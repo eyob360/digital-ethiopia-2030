@@ -2,6 +2,10 @@
 
 Index of completed work, moved here from `STATE.md` when a BRD is fully validated. Same one-line format. Don't reuse archived IDs.
 
+## Setup
+
+- [Setup](SETUP.md) — project setup checklist — status: done
+
 ## BRDs
 
 ## Blueprints
