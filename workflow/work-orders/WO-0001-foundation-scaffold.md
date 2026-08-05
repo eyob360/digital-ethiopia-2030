@@ -5,7 +5,7 @@ implements: none
 blueprint: BP-0001
 depends-on: none
 units-touched: [UNIT-0001, UNIT-0002]
-status: done
+status: validated
 ---
 
 # WO-0001: Foundation scaffold
