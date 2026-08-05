@@ -3,9 +3,9 @@ id: WO-0005
 title: Dashboard UI
 implements: [BRD-0001.R2, BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
 blueprint: BP-0001
-depends-on: [WO-0004]
+depends-on: [WO-0004, WO-0008]
 units-touched: [UNIT-0002, UNIT-0009, UNIT-0024, UNIT-0025, UNIT-0026, UNIT-0027, UNIT-0028, UNIT-0029, UNIT-0030, UNIT-0031, UNIT-0032, UNIT-0033, UNIT-0034]
-status: validated
+status: done
 ---
 
 # WO-0005: Dashboard UI

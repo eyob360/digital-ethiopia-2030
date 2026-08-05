@@ -18,5 +18,6 @@ Index only — one line per decision. Full context lives in `decisions/`. Check 
 - [D-0014](decisions/D-0014-application-stack.md) — Use Next.js, TypeScript, PostgreSQL, Prisma, Auth.js, n8n, OpenAI, and Tavily
 - [D-0015](decisions/D-0015-development-approach.md) — Use spec-first development
 - [D-0016](decisions/D-0016-auth-database-dependencies.md) — Use stable NextAuth v4 and Prisma PostgreSQL adapter dependencies
+- [D-0017](decisions/D-0017-mvp-completion-rework.md) — MVP completion rejected; rework via rollbacks, fix WOs, and refutation-stance validation
 
 <!-- - [D-0001](decisions/D-0001-example.md) — Chose Postgres over SQLite for production parity -->

@@ -2,10 +2,12 @@
 id: VAL-WO-0005
 work-order: WO-0005
 date: 2026-08-05
-result: pass
+result: blocked
 ---
 
 # Validation: WO-0005
+
+**Update 2026-08-05 (rework):** result revised from `pass` to `blocked` under the refutation-stance evidence rules. The accessibility criteria (D-0013) make behavioral claims — keyboard access, visible focus, text contrast — but browser tooling was unavailable in both the implementation and validation sessions, so those checks never executed; they were passed on markup inspection. Per `INSTRUCTIONS.md`, unexecutable required checks are `blocked`, not passed. WO-0005 reverts to `done` pending re-validation once the user arranges browser tooling or waives the behavioral accessibility checks (see STATE.md Blocked). All other criteria below stand on live executed evidence. Note: the branch had already merged to `main` before this rollback; the merge is not reverted.
 
 Validated by a session that did not implement the work order. Live checks ran against local Docker PostgreSQL and a production build on port 3100 with seeded operator and viewer accounts (test users, observations, and server removed afterwards; DB left at 10 seeded KPIs, 0 observations). Checks were server-rendered-markup based (curl + HTML inspection), consistent with the WO's own evidence note that browser screenshot tooling was unavailable.
 
@@ -21,7 +23,8 @@ Validated by a session that did not implement the work order. Live checks ran ag
 | BRD-0003.R6.AC1-AC5 (page set) | pass | Build registers `/`, `/kpis/[id]`, `/admin/kpis`, `/pipeline`, `/login`, `/account` (matching D-0012); live: all returned 200 for the operator; login page renders sign-in form; account page shows name/email/role and sign-out |
 | BRD-0003.R6.AC6 (viewer denial) | pass | Live: viewer nav omits "KPI Admin"/"Pipeline" (role-gated in `app-shell.tsx`); direct viewer requests to `/admin/kpis` and `/pipeline` → 307 redirect to `/` (server-side `canUseOperatorControls` guard in both pages); unauthenticated `/` → 307 to `/login?callbackUrl=%2F` |
 | Design-token discipline | pass | No hardcoded colors or px literals in components/pages; new utility classes in `globals.css` compose semantic tokens (px values there are the token definitions and structural borders/focus rings) |
-| Accessibility (D-0013, markup-level) | pass | Labelled form fields (`field-label` wrapping inputs), semantic tables, `aria-label`/`aria-labelledby`/`aria-pressed` usage, focus-ring styles in `globals.css`; matches WO evidence — no browser-based visual pass |
+| Accessibility (D-0013) — structural | pass (by inspection) | Labelled form fields (`field-label` wrapping inputs), semantic tables, `aria-label`/`aria-labelledby`/`aria-pressed` usage, focus-ring styles in `globals.css` |
+| Accessibility (D-0013) — behavioral (keyboard access, visible focus, contrast) | blocked | Browser tooling unavailable; checks never executed — markup inspection cannot substitute for behavioral evidence |
 | Testing plan | pass | `npm run lint` clean; `npm test` 48/48 across 14 files; `npm run build` succeeds with all 15 routes registered |
 | Registry | pass | UNIT-0024 … UNIT-0034 files exist and are indexed; UNIT-0002/0009 updated for the extended home page and login-aware middleware |
 
@@ -32,7 +35,7 @@ None against BRDs, BP-0001, D-0011, D-0012, or D-0013. Notes:
 2. Admin UI offers list/create/edit/view per BRD-0001.R2; KPI deletion exists only at API level — consistent with R2's ACs, noted for completeness.
 
 ## Failures
-None.
+None. One criterion group is `blocked` (behavioral accessibility, above) — not failed; nothing to fix in code until the checks can run or are waived.
 
 ## Merge status
-Released for merge after user validation/review.
+Released for merge after user validation/review; merged to `main`. Status later reverted to `done` (see update note above) — the merge stands, only the validation verdict is withdrawn pending the blocked checks.
