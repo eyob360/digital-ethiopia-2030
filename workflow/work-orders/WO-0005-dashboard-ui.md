@@ -5,7 +5,7 @@ implements: [BRD-0001.R2, BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: [UNIT-0002, UNIT-0009, UNIT-0024, UNIT-0025, UNIT-0026, UNIT-0027, UNIT-0028, UNIT-0029, UNIT-0030, UNIT-0031, UNIT-0032, UNIT-0033, UNIT-0034]
-status: in-progress
+status: done
 ---
 
 # WO-0005: Dashboard UI
@@ -67,3 +67,13 @@ Build the MVP user-facing pages using the route SSOT and locked component style:
 - `npm run build`
 - Manual responsive inspection at desktop and mobile widths.
 - Accessibility-focused checks for keyboard access, visible focus, text contrast, and role-based navigation visibility.
+
+## Completion evidence
+- 2026-08-05: `npm run lint` passed.
+- 2026-08-05: `npm test` passed, 14 files / 48 tests.
+- 2026-08-05: `npm run build` passed.
+- 2026-08-05: `npm run format` passed.
+- 2026-08-05: `npx prisma validate` passed.
+- 2026-08-05: local route inspection passed with seeded operator and viewer accounts: `/`, `/admin/kpis`, `/pipeline`, `/account`, `/login`, and `/kpis/[id]`.
+- 2026-08-05: viewer route check confirmed operator pages redirect to `/` and dashboard navigation hides `KPI Admin` / `Pipeline`.
+- 2026-08-05: markup/CSS accessibility pass confirmed labelled form fields, semantic tables, keyboard-visible focus styles, non-viewport-scaled type, and review-flag visibility without approve/reject actions. Browser screenshot connector was unavailable, so visual inspection evidence is route/markup based.
