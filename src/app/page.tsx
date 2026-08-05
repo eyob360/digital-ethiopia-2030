@@ -1,23 +1,51 @@
-import { Button } from "@/components/ui/button";
+import { getServerSession } from "next-auth";
+import { AppShell } from "@/components/layout/app-shell";
+import { CategoryFilter } from "@/components/dashboard/category-filter";
+import { getDashboardKpis } from "@/server/dashboard";
+import { authOptions } from "@/server/auth";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const [session, kpis] = await Promise.all([getServerSession(authOptions), getDashboardKpis()]);
+  const observedCount = kpis.filter((kpi) => kpi.latestObservation).length;
+  const reviewCount = kpis.filter((kpi) => kpi.latestObservation?.reviewFlag).length;
+  const categoryCount = new Set(kpis.map((kpi) => kpi.category)).size;
+
   return (
-    <main className="min-h-screen bg-background px-lg py-xl text-foreground">
-      <section className="mx-auto flex max-w-5xl flex-col gap-lg">
-        <div className="flex flex-col gap-sm">
-          <p className="text-label font-semibold uppercase text-primary">Foundation scaffold</p>
-          <h1 className="text-heading font-semibold">
-            Digital Ethiopia 2030 Intelligence Dashboard
-          </h1>
-          <p className="max-w-2xl text-body">
-            The application shell is ready for the approved MVP work orders: data/auth,
-            deterministic pipeline rules, dashboard APIs, dashboard UI, and n8n ingestion.
+    <AppShell session={session}>
+      <section className="page-heading">
+        <div>
+          <p className="eyebrow">Dashboard overview</p>
+          <h1>Digital Ethiopia 2030 KPIs</h1>
+          <p>
+            Latest accepted observations grouped by Digital Ethiopia 2030 priority area, with
+            server-calculated progress and review status.
           </p>
         </div>
-        <div>
-          <Button>Dashboard scaffold</Button>
-        </div>
       </section>
-    </main>
+
+      <section className="grid gap-md md:grid-cols-3" aria-label="Dashboard summary">
+        <SummaryStat label="Configured KPIs" value={kpis.length} />
+        <SummaryStat label="Categories" value={categoryCount} />
+        <SummaryStat
+          label="Review flagged"
+          value={reviewCount}
+          detail={`${observedCount} observed`}
+        />
+      </section>
+
+      <CategoryFilter kpis={kpis} />
+    </AppShell>
+  );
+}
+
+function SummaryStat({ label, value, detail }: { label: string; value: number; detail?: string }) {
+  return (
+    <div className="metric-panel">
+      <p className="text-sm font-medium text-foreground/65">{label}</p>
+      <p className="text-3xl font-semibold">{value}</p>
+      {detail ? <p className="text-sm text-foreground/65">{detail}</p> : null}
+    </div>
   );
 }

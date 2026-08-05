@@ -4,7 +4,7 @@ title: Dashboard UI
 implements: [BRD-0001.R2, BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
 blueprint: BP-0001
 depends-on: [WO-0004]
-units-touched: []
+units-touched: [UNIT-0002, UNIT-0009, UNIT-0024, UNIT-0025, UNIT-0026, UNIT-0027, UNIT-0028, UNIT-0029, UNIT-0030, UNIT-0031, UNIT-0032, UNIT-0033, UNIT-0034]
 status: in-progress
 ---
 
@@ -59,6 +59,7 @@ Build the MVP user-facing pages using the route SSOT and locked component style:
 - Use `src/app/` as route SSOT.
 - Use semantic tokens and local shadcn-style components only.
 - Register significant pages and reusable components.
+- Search-before-create result: reused `Button`, existing auth/session services, and dashboard/KPI/pipeline services; extended `UNIT-0002` and `UNIT-0009`; created app-shell, dashboard, admin, pipeline, login, and account UI units because the registry had no existing page/component layer for them.
 
 ## Testing plan
 - `npm run lint`

@@ -5,6 +5,12 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 ## Components
 
 - [UNIT-0001](UNIT-0001-button.md) — Button — src/components/ui/button.tsx
+- [UNIT-0024](UNIT-0024-app-shell.md) — App shell — src/components/layout/app-shell.tsx
+- [UNIT-0025](UNIT-0025-status-badge.md) — Status badge — src/components/dashboard/status-badge.tsx
+- [UNIT-0026](UNIT-0026-kpi-card.md) — KPI card — src/components/dashboard/kpi-card.tsx
+- [UNIT-0027](UNIT-0027-category-filter.md) — Category filter — src/components/dashboard/category-filter.tsx
+- [UNIT-0031](UNIT-0031-kpi-admin-workspace.md) — KPI admin workspace — src/components/forms/kpi-admin-workspace.tsx
+- [UNIT-0032](UNIT-0032-pipeline-controls.md) — Pipeline controls — src/components/pipeline/pipeline-controls.tsx
 
 <!-- - [UNIT-0001](UNIT-0001-data-table.md) — DataTable — src/components/DataTable.tsx -->
 
@@ -40,4 +46,9 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 
 ## Pages
 
-- [UNIT-0002](UNIT-0002-home-page.md) — Home page scaffold — src/app/page.tsx
+- [UNIT-0002](UNIT-0002-home-page.md) — Dashboard overview page — src/app/page.tsx
+- [UNIT-0028](UNIT-0028-kpi-detail-page.md) — KPI detail page — src/app/kpis/[id]/page.tsx
+- [UNIT-0029](UNIT-0029-kpi-admin-page.md) — KPI admin page — src/app/admin/kpis/page.tsx
+- [UNIT-0030](UNIT-0030-pipeline-page.md) — Pipeline page — src/app/pipeline/page.tsx
+- [UNIT-0033](UNIT-0033-login-page.md) — Login page — src/app/login/page.tsx
+- [UNIT-0034](UNIT-0034-account-page.md) — Account page — src/app/account/page.tsx

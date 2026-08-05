@@ -1,15 +1,15 @@
 ---
 id: UNIT-0002
-name: Home page scaffold
+name: Dashboard overview page
 kind: page
 path: src/app/page.tsx
 status: active
 ---
 
-# UNIT-0002: Home page scaffold
+# UNIT-0002: Dashboard overview page
 
-**Purpose:** Temporary root route scaffold for the application shell until the dashboard overview work order replaces it.
+**Purpose:** Authenticated dashboard overview with KPI summary metrics and category-filtered KPI cards.
 
-**Interface:** Route `/`; public scaffold page for foundation verification.
+**Interface:** Next.js app route `/`.
 
-**Variants/options:** None.
+**Variants/options:** Uses `AppShell`, `CategoryFilter`, and server-side dashboard data.
