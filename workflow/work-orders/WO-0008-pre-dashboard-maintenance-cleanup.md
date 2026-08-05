@@ -5,7 +5,7 @@ implements: none
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: [UNIT-0015, UNIT-0019, UNIT-0020, UNIT-0021, UNIT-0022, UNIT-0023]
-status: done
+status: validated
 ---
 
 # WO-0008: Pre-dashboard maintenance cleanup
