@@ -35,6 +35,4 @@ Last drift audit: b379055 (2026-08-05)
 
 ## Blocked / Needs user input
 
-- WO-0008 — validated (VAL-WO-0008 pass); branch `wo-0008-pre-dashboard-maintenance-cleanup` awaits user review before merge (touches authz code)
-
 <!-- - WO-0003 — waiting on decision about payment provider -->

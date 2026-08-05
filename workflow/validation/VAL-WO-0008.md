@@ -26,4 +26,4 @@ None. Changes are behavior-preserving as required by the work order; no new depe
 None.
 
 ## Merge status
-Held for user review before merge — the refactor touches `src/server/api/authz.ts` (auth code), which conventions flag for user review even when the change is type/vocabulary-level and validation passes.
+Released for merge after user validation/review.
