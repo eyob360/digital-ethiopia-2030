@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import {
   acquirePipelineLock,
   getPipelineLockStatus,
-  loadPipelineKpiBatch,
   releasePipelineLock,
   startPipelineRun,
 } from "./pipeline";
@@ -91,18 +90,6 @@ describe("pipeline services", () => {
       where: { name: "INGESTION" },
       data: { locked: false, lockedAt: null },
     });
-  });
-
-  it("loads pipeline KPI batches through the eligibility service", async () => {
-    const client = {
-      pipelineLock: { upsert: vi.fn() },
-      kpiDefinition: {
-        findMany: vi.fn(async () => []),
-      },
-    };
-
-    await expect(loadPipelineKpiBatch({ limit: 10 }, client as never)).resolves.toEqual([]);
-    expect(client.kpiDefinition.findMany).toHaveBeenCalled();
   });
 
   it("starts a run by acquiring the lock before loading KPIs", async () => {

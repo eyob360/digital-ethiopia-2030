@@ -12,7 +12,7 @@ type RouteContext = {
 };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }
@@ -24,7 +24,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function PUT(request: Request, context: RouteContext) {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }
@@ -40,7 +40,7 @@ export async function PUT(request: Request, context: RouteContext) {
 }
 
 export async function DELETE(_request: Request, context: RouteContext) {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }

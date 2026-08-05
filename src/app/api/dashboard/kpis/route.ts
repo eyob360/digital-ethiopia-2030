@@ -1,12 +1,6 @@
 import { getDashboardKpis } from "@/server/dashboard";
-import { requireApiRole } from "@/server/api/authz";
-import { jsonOk } from "@/server/api/responses";
+import { jsonListWithRole } from "@/server/api/handlers";
 
 export async function GET() {
-  const auth = await requireApiRole("viewer");
-  if (!auth.ok) {
-    return auth.response;
-  }
-
-  return jsonOk({ kpis: await getDashboardKpis() });
+  return jsonListWithRole("VIEWER", "kpis", getDashboardKpis);
 }

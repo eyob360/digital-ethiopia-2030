@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { canUseOperatorControls, canViewDashboard, type UserRole } from "../../lib/auth/roles";
 
-export type ApiRoleRequirement = "viewer" | "operator";
+export type ApiRoleRequirement = UserRole;
 
 export type ApiAuthResult =
   { ok: true; role: UserRole } | { ok: false; response: NextResponse<{ error: string }> };
@@ -15,11 +15,11 @@ export function authorizeRole(
     return unauthorized();
   }
 
-  if (requirement === "viewer" && canViewDashboard(role)) {
+  if (requirement === "VIEWER" && canViewDashboard(role)) {
     return { ok: true, role };
   }
 
-  if (requirement === "operator" && canUseOperatorControls(role)) {
+  if (requirement === "OPERATOR" && canUseOperatorControls(role)) {
     return { ok: true, role };
   }
 

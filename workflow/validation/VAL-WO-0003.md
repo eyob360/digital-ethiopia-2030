@@ -35,4 +35,4 @@ One interpretation worth confirming: the URL filter is **allow-list-only** — a
 None.
 
 ## Merge status
-Held for user review before merge — the confidence thresholds and URL filtering policy are core business rules, which conventions flag for user review even after validation passes.
+Merged to `main` after user review.

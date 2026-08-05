@@ -10,6 +10,6 @@ status: active
 
 **Purpose:** Server boundary for ingestion lock status/transitions and eligible KPI batch loading.
 
-**Interface:** `getPipelineLockStatus`, `acquirePipelineLock`, `releasePipelineLock`, `loadPipelineKpiBatch`, and `startPipelineRun`.
+**Interface:** `getPipelineLockStatus`, `acquirePipelineLock`, `releasePipelineLock`, and `startPipelineRun`.
 
 **Variants/options:** Lock acquisition is atomic through `updateMany` on unlocked rows; `startPipelineRun` does not load KPIs when the lock is already held.

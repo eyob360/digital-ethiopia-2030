@@ -1,12 +1,6 @@
-import { loadPipelineKpiBatch } from "@/server/pipeline";
-import { requireApiRole } from "@/server/api/authz";
-import { jsonOk } from "@/server/api/responses";
+import { loadEligibleKpisForPipeline } from "@/server/kpis";
+import { jsonListWithRole } from "@/server/api/handlers";
 
 export async function GET() {
-  const auth = await requireApiRole("operator");
-  if (!auth.ok) {
-    return auth.response;
-  }
-
-  return jsonOk({ kpis: await loadPipelineKpiBatch() });
+  return jsonListWithRole("OPERATOR", "kpis", loadEligibleKpisForPipeline);
 }

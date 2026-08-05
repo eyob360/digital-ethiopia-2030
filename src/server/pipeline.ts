@@ -40,13 +40,6 @@ export async function releasePipelineLock(client: PipelineClient = prisma) {
   return serializePipelineLock(lock);
 }
 
-export async function loadPipelineKpiBatch(
-  options: { now?: Date; limit?: number } = {},
-  client: PipelineClient = prisma,
-) {
-  return loadEligibleKpisForPipeline(options, client);
-}
-
 export async function startPipelineRun(
   options: { now?: Date; limit?: number } = {},
   client: PipelineClient = prisma,
@@ -64,7 +57,7 @@ export async function startPipelineRun(
   return {
     started: true,
     lock: lockResult.lock,
-    kpis: await loadPipelineKpiBatch(options, client),
+    kpis: await loadEligibleKpisForPipeline(options, client),
   };
 }
 

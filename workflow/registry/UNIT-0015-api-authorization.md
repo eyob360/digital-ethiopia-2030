@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `authorizeRole(role, requirement)` and `requireApiRole(requirement)`.
 
-**Variants/options:** Requirements are `viewer` for read access and `operator` for admin/pipeline control access.
+**Variants/options:** Requirements use the shared uppercase `UserRole` vocabulary: `VIEWER` for read access and `OPERATOR` for admin/pipeline control access.

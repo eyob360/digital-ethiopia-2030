@@ -3,7 +3,7 @@ import { requireApiRole } from "@/server/api/authz";
 import { jsonError, jsonOk, readJsonBody } from "@/server/api/responses";
 
 export async function GET() {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }
@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }

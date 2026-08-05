@@ -1,18 +1,14 @@
 import { createKpiDefinition, listKpiDefinitions, parseKpiDefinitionInput } from "@/server/kpis";
 import { requireApiRole } from "@/server/api/authz";
+import { jsonListWithRole } from "@/server/api/handlers";
 import { jsonError, jsonOk, readJsonBody } from "@/server/api/responses";
 
 export async function GET() {
-  const auth = await requireApiRole("operator");
-  if (!auth.ok) {
-    return auth.response;
-  }
-
-  return jsonOk({ kpis: await listKpiDefinitions() });
+  return jsonListWithRole("OPERATOR", "kpis", listKpiDefinitions);
 }
 
 export async function POST(request: Request) {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }

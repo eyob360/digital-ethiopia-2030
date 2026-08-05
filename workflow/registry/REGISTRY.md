@@ -28,6 +28,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0017](UNIT-0017-dashboard-service.md) — Dashboard service — src/server/dashboard.ts
 - [UNIT-0018](UNIT-0018-observation-service.md) — Observation service — src/server/observations.ts
 - [UNIT-0019](UNIT-0019-pipeline-service.md) — Pipeline service — src/server/pipeline.ts
+- [UNIT-0023](UNIT-0023-api-handler-helpers.md) — API handler helpers — src/server/api/handlers.ts
 
 ## Endpoints
 

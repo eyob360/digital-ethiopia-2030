@@ -4,8 +4,8 @@ title: Pre-dashboard maintenance cleanup
 implements: none
 blueprint: BP-0001
 depends-on: [WO-0004]
-units-touched: []
-status: draft
+units-touched: [UNIT-0015, UNIT-0019, UNIT-0020, UNIT-0021, UNIT-0022, UNIT-0023]
+status: done
 ---
 
 # WO-0008: Pre-dashboard maintenance cleanup
@@ -41,3 +41,11 @@ Maintenance work order: no business requirements. Validate against the summary o
 - `npm run format`
 - `npx prisma validate`
 - Verify no `latest` dependency spec remains in `package.json`.
+
+## Completion evidence
+- 2026-08-05: `npm run lint` passed.
+- 2026-08-05: `npm test` passed, 14 files / 48 tests.
+- 2026-08-05: `npm run build` passed.
+- 2026-08-05: `npm run format` passed.
+- 2026-08-05: `npx prisma validate` passed.
+- 2026-08-05: `rg -n '"viewer"|"operator"|loadPipelineKpiBatch|"latest"' src workflow package.json package-lock.json` returned no matches.

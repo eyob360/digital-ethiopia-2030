@@ -8,7 +8,7 @@ type RouteContext = {
 };
 
 export async function GET(_request: Request, context: RouteContext) {
-  const auth = await requireApiRole("viewer");
+  const auth = await requireApiRole("VIEWER");
   if (!auth.ok) {
     return auth.response;
   }
@@ -19,7 +19,7 @@ export async function GET(_request: Request, context: RouteContext) {
 }
 
 export async function POST(request: Request, context: RouteContext) {
-  const auth = await requireApiRole("operator");
+  const auth = await requireApiRole("OPERATOR");
   if (!auth.ok) {
     return auth.response;
   }

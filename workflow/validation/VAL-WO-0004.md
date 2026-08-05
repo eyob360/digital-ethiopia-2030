@@ -29,11 +29,11 @@ Live checks ran against local Docker PostgreSQL and a production build on port 3
 ## Drift observed
 None against BRDs, BP-0001, or cited decisions. Notes:
 
-1. **BRD-0001.R2 is satisfied at API level only.** D-0005 requires an admin UI in the MVP; no work order currently in STATE.md covers admin UI pages (WO-0005 covers the BRD-0003 dashboard UI). BRD-0001 should not be considered fully validated until the admin UI lands — worth confirming where it is planned.
+1. **BRD-0001.R2 is satisfied at API level only.** D-0005 requires an admin UI in the MVP; WO-0005 now covers the remaining admin UI surface by citing BRD-0001.R2. BRD-0001 should not be considered fully validated until that UI lands.
 2. If a pipeline run fails mid-flight after `startPipelineRun`, the lock stays held until an explicit `complete`/`release` call — the n8n workflow (WO-0006) must handle failure-path release. Not an AC violation here; flagged for the WO-0006 implementer.
 
 ## Failures
 None.
 
 ## Merge status
-Held for user review before merge — the work order adds role-protected API surfaces (auth-adjacent), which conventions flag for user review even after validation passes.
+Merged to `main` after user review.

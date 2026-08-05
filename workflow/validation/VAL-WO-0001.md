@@ -24,7 +24,7 @@ Maintenance work order (`implements: none`) — validated against the summary ob
 ## Drift observed
 None. The Auth.js install deferral deviates from the BP-0001 stack list but is explicitly recorded in the work order's scope with a stated reason (vulnerable beta dependency path) and a follow-up obligation on the data/auth work order — a documented deferral, not silent drift.
 
-Minor observation (no action required for this WO): `package.json` pins most dependencies as `"latest"`, which makes builds non-reproducible over time. Worth pinning in a later work order.
+Resolved by WO-0008: package specs are pinned to explicit versions.
 
 ## Failures
 None.
