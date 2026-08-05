@@ -5,7 +5,7 @@ implements: [BRD-0001.R2, BRD-0001.R4, BRD-0001.R6, BRD-0002.R11, BRD-0003.R1, B
 blueprint: BP-0001
 depends-on: [WO-0003]
 units-touched: [UNIT-0015, UNIT-0016, UNIT-0017, UNIT-0018, UNIT-0019, UNIT-0020, UNIT-0021, UNIT-0022]
-status: in-progress
+status: done
 ---
 
 # WO-0004: Dashboard and admin APIs
@@ -73,3 +73,11 @@ Build the server-side API/service layer for KPI administration, pipeline state, 
 - `npm test`
 - `npm run build`
 - Integration tests or repository/service tests for append-only observations, latest selection, role denial, and pipeline lock transitions.
+
+## Completion evidence
+- `npm run lint` passed.
+- `npm test` passed: 14 test files, 49 tests.
+- `npm run build` passed.
+- `npm run format` passed.
+- `npx prisma validate` passed.
+- Repository/service tests cover append-only observation inserts, latest-observation selection, role denial, target progress omission/calculation, KPI pipeline batch limits, and pipeline lock transitions including start-with-lock behavior.
