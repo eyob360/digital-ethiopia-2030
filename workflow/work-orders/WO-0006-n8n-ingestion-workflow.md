@@ -5,7 +5,7 @@ implements: [BRD-0002.R1, BRD-0002.R2, BRD-0002.R3, BRD-0002.R4, BRD-0002.R5, BR
 blueprint: BP-0001
 depends-on: [WO-0004]
 units-touched: [UNIT-0009, UNIT-0019, UNIT-0035, UNIT-0036, UNIT-0037, UNIT-0038, UNIT-0039]
-status: in-progress
+status: done
 ---
 
 # WO-0006: n8n ingestion workflow
@@ -118,3 +118,13 @@ Implement the scheduled n8n ingestion workflow that loads eligible KPIs, checks 
 - Validate the n8n workflow export/documentation shape.
 - Use mocked OpenAI/Tavily responses for local tests where live credentials are unavailable.
 - Manual dry-run documentation for expected operational path.
+
+## Completion evidence
+- 2026-08-05: `npm run lint` passed.
+- 2026-08-05: `npm test` passed, 18 files / 61 tests.
+- 2026-08-05: `npm run build` passed.
+- 2026-08-05: `npm run format` passed.
+- 2026-08-05: `npx prisma validate` passed.
+- 2026-08-05: `node -e "JSON.parse(require('fs').readFileSync('n8n/workflows/digital-ethiopia-ingestion.json','utf8')); console.log('workflow json ok')"` passed.
+- 2026-08-05: workflow export test validated required n8n nodes, app ingestion API boundaries, priority/fallback connections, retry settings, and mocked OpenAI/Tavily response shapes.
+- 2026-08-05: local route checks on port 3010 verified ingestion API bearer denial (`401`), deterministic URL filtering (`200` with blocked social URL removed), and clear missing Tavily config error (`500`, `TAVILY_API_KEY is not configured`).
