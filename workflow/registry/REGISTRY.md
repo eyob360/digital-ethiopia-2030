@@ -23,11 +23,19 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 
 - [UNIT-0005](UNIT-0005-prisma-client.md) — Prisma client — src/lib/prisma.ts
 - [UNIT-0006](UNIT-0006-auth-options.md) — Auth options — src/server/auth.ts
+- [UNIT-0015](UNIT-0015-api-authorization.md) — API authorization — src/server/api/authz.ts
+- [UNIT-0016](UNIT-0016-kpi-service.md) — KPI service — src/server/kpis.ts
+- [UNIT-0017](UNIT-0017-dashboard-service.md) — Dashboard service — src/server/dashboard.ts
+- [UNIT-0018](UNIT-0018-observation-service.md) — Observation service — src/server/observations.ts
+- [UNIT-0019](UNIT-0019-pipeline-service.md) — Pipeline service — src/server/pipeline.ts
 
 ## Endpoints
 
 - [UNIT-0007](UNIT-0007-auth-route.md) — Auth route — src/app/api/auth/[...nextauth]/route.ts
 - [UNIT-0009](UNIT-0009-auth-middleware.md) — Auth middleware — src/proxy.ts
+- [UNIT-0020](UNIT-0020-kpi-admin-api.md) — KPI admin API — src/app/api/kpis
+- [UNIT-0021](UNIT-0021-dashboard-kpi-api.md) — Dashboard KPI API — src/app/api/dashboard/kpis/route.ts
+- [UNIT-0022](UNIT-0022-pipeline-api.md) — Pipeline API — src/app/api/pipeline
 
 ## Pages
 

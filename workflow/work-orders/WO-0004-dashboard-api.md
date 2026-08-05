@@ -4,8 +4,8 @@ title: Dashboard and admin APIs
 implements: [BRD-0001.R2, BRD-0001.R4, BRD-0001.R6, BRD-0002.R11, BRD-0003.R1, BRD-0003.R5]
 blueprint: BP-0001
 depends-on: [WO-0003]
-units-touched: []
-status: ready
+units-touched: [UNIT-0015, UNIT-0016, UNIT-0017, UNIT-0018, UNIT-0019, UNIT-0020, UNIT-0021, UNIT-0022]
+status: in-progress
 ---
 
 # WO-0004: Dashboard and admin APIs
@@ -66,6 +66,7 @@ Build the server-side API/service layer for KPI administration, pipeline state, 
 - Depends on schema/auth from WO-0002 and deterministic rules from WO-0003.
 - Register services/endpoints in `workflow/registry/`.
 - Keep API response shaping server-side.
+- Search-before-create result: created new dashboard/admin API services and endpoints because the registry only had auth, Prisma, seed, and deterministic pipeline helpers.
 
 ## Testing plan
 - `npm run lint`
