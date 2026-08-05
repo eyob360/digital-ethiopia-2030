@@ -28,6 +28,8 @@ Start PostgreSQL and n8n:
 docker compose up -d
 ```
 
+The compose file pins n8n to `n8nio/n8n:2.33.0`; update the tag deliberately and rerun the workflow export tests before changing it.
+
 Validate compose wiring without starting containers:
 
 ```bash
