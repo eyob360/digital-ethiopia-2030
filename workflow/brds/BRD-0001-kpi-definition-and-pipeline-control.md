@@ -2,7 +2,7 @@
 id: BRD-0001
 title: KPI definition and pipeline control
 source: srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Fetch interval (per-KPI); srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 1: Scheduler & Pipeline Control; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 2: KPI Definition Loader
-status: approved
+status: validated
 ---
 
 # BRD-0001: KPI definition and pipeline control

@@ -5,7 +5,7 @@ implements: none
 blueprint: BP-0001
 depends-on: [WO-0005, WO-0006]
 units-touched: [UNIT-0037, UNIT-0040]
-status: done
+status: validated
 ---
 
 # WO-0007: Integration hardening and operations docs

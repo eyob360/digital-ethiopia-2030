@@ -2,7 +2,7 @@
 id: BRD-0003
 title: Dashboard API and visualization
 source: srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 12: KPI Observation Storage; srs/Digital Ethiopia 2030 Intelligence Dashboard.md#Layer 13: Dashboard & API Layer
-status: approved
+status: validated
 ---
 
 # BRD-0003: Dashboard API and visualization
