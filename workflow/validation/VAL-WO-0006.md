@@ -30,3 +30,6 @@ All other criteria from the original validation table (R2, R3, R4, R5/R6, R7/R8,
 
 ## Result
 Work order returned to `in-progress`. Only failure 1 (budget leak) blocks re-validation; everything else is confirmed fixed.
+
+## Resolution note 2
+Implementation follow-up changed `Apply Document Budget` to compute `start` from the maximum incoming `documentsProcessed` value instead of `items[0]`, closing the residual N2.AC1 budget leak. Awaiting fresh re-validation; this report's `result: fail` remains the re-validation outcome until then.

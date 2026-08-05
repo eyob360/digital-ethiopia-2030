@@ -23,7 +23,7 @@ This folder contains the versioned n8n workflow source for WO-0006.
 5. If the lock is already held, the workflow exits without loading KPIs because it did not acquire the lock.
 6. When a KPI has priority URLs, the workflow tries them sequentially. A stored observation completes the run path for that KPI; failed priority URLs advance to the next priority URL, and fallback begins only after the final priority URL fails.
 7. If a branch enters fallback, it sets `fallbackUsed=true` before requesting OpenAI-generated queries. Duplicate, irrelevant, invalid, or empty fallback branches do not re-enter fallback.
-8. Before any document fetch, the workflow passes URL items through `Apply Document Budget`, which tracks `documentsProcessed` and emits at most 10 document branches for the hourly run.
+8. Before any document fetch, the workflow passes URL items through `Apply Document Budget`, which tracks `documentsProcessed`, uses the maximum incoming count across execution waves, and emits at most 10 document branches for the hourly run.
 9. Terminal paths that can otherwise produce zero surviving items route to `Complete Pipeline Run`, which calls `/api/ingestion/pipeline/runs` with `action=complete` so an acquired lock is released.
 
 ## Retry Policy
@@ -33,5 +33,5 @@ HTTP fetches, OpenAI calls, and app/database-backed ingestion API calls use n8n 
 - The pipeline runs hourly.
 - The app batch loader caps KPI definitions at 10 per run.
 - Candidate URL filtering caps source URLs at 5 per KPI.
-- `Apply Document Budget` caps document fetch/store branches at 10 per hourly run.
+- `Apply Document Budget` caps document fetch/store branches at 10 per hourly run by carrying the maximum `documentsProcessed` count forward between waves.
 - The workflow has no vector database, queue, warehouse, real-time stream, paid data API beyond configured providers, custom ML model, multilingual processing, or advanced entity resolution.

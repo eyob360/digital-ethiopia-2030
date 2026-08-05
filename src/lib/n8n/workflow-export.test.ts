@@ -116,6 +116,9 @@ describe("n8n ingestion workflow export", () => {
 
   it("caps document fetch branches and routes malformed terminal paths to completion", () => {
     expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("10 - start");
+    expect(findNode("Apply Document Budget").parameters?.jsCode).toContain(
+      "Math.max(0, ...items.map",
+    );
     expect(findNode("Apply Document Budget").parameters?.jsCode).toContain("documentsProcessed");
     expect(outgoingNodeNames("Expand Priority URLs")).toEqual(["Apply Document Budget"]);
     expect(outgoingNodeNames("Expand Filtered URLs")).toEqual(["Apply Document Budget"]);
