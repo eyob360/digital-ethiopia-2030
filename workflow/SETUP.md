@@ -26,7 +26,7 @@ Work through these with the user. Delete the branch that doesn't apply. When all
 
 ## New project
 
-- [ ] Ask the user for the stack and commands; fill in **Commands & stack** in `AGENTS.md`
+- [x] Ask the user for the stack and commands; fill in **Commands & stack** in `AGENTS.md`
 - [ ] Ask the user which development approach they want, explaining the options:
   - **Spec-first** (default) — requirements approved before implementation
   - **Prototype-first** — frontend-only prototype to discover UX requirements, then backend integration; suits UX-heavy products or unsettled requirements (mechanics in `blueprints/INSTRUCTIONS.md`)

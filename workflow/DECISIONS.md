@@ -15,5 +15,6 @@ Index only — one line per decision. Full context lives in `decisions/`. Check 
 - [D-0011](decisions/D-0011-review-flag-scope.md) — Show review-flagged observations without approval/rejection in MVP
 - [D-0012](decisions/D-0012-mvp-page-set.md) — MVP includes overview, KPI detail, KPI admin, pipeline status, and login/account pages
 - [D-0013](decisions/D-0013-accessibility-target.md) — Target WCAG 2.2 AA accessibility
+- [D-0014](decisions/D-0014-application-stack.md) — Use Next.js, TypeScript, PostgreSQL, Prisma, Auth.js, n8n, OpenAI, and Tavily
 
 <!-- - [D-0001](decisions/D-0001-example.md) — Chose Postgres over SQLite for production parity -->

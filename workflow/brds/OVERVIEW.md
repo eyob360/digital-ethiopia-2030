@@ -35,10 +35,10 @@ Use unit tests for deterministic business rules such as fetch-interval eligibili
 Cheap checks while iterating should be targeted unit tests and type/lint checks for touched code. Work-order completion should run the relevant unit and integration suite. Validation/CI should run full build, full tests, and selected E2E tests where applicable.
 
 ## Technical requirements
-- Stack: web app with n8n orchestration, PostgreSQL preferred by the SRS with MySQL allowed as an alternative, OpenAI API for language reasoning/extraction, HTTP request based web retrieval, and backend API or GraphQL for dashboard access.
+- Stack: Next.js with TypeScript, Tailwind CSS with shadcn-style components, PostgreSQL, Prisma migrations, Auth.js, n8n orchestration, OpenAI API for language reasoning/extraction, Tavily fallback web search, and HTTP request based priority-source retrieval.
 - AI usage: AI shall be used for query generation, relevance classification, and structured extraction only; deterministic computation shall remain rule-based.
 - Data model: core schema includes `kpi_definitions`, `raw_documents`, and `kpi_observations`.
-- Schema authority: the implementation must declare a single authoritative schema source once the stack is chosen.
+- Schema authority: Prisma migrations are the authoritative schema source.
 - Data retention: KPI observations are append-only; old values are never overwritten.
 - Security and authorization: login is required for the MVP; `operator` users can manage KPI definitions and operational controls, while `viewer` users have read-only dashboard access.
 - Accessibility: dashboard UI shall target WCAG 2.2 AA.

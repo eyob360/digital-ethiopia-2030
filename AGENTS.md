@@ -64,12 +64,12 @@ Keep responses short and simple — the user should be able to read, understand,
 
 <!-- Fill in per project. Agents: if this section is empty, ask the user to fill it. -->
 
-- Stack:
-- Dev server:
-- Full dev stack: <!-- single entry-point script, e.g. ./start_dev_servers.sh — bring up everything (infra, backends, frontends) with one command; comment it well: it doubles as the architecture map (services, ports, startup order) -->
-- Tests:
-- Lint / format:
-- Dev data: <!-- where fixtures/seeds live, how to reset the dev database -->
+- Stack: Next.js + TypeScript; Tailwind CSS with shadcn-style components; PostgreSQL; Prisma migrations as schema authority; Auth.js; n8n; OpenAI API; Tavily.
+- Dev server: `npm run dev`
+- Full dev stack: `docker compose up -d && npm run dev` <!-- single entry-point script may replace this after scaffolding -->
+- Tests: `npm test`
+- Lint / format: `npm run lint`; `npm run format`
+- Dev data: Prisma seed/reset commands to be defined when the app scaffold and database are created.
 
 ## Conventions
 
