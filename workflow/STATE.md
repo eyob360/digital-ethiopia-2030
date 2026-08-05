@@ -16,7 +16,7 @@ Last drift audit: none
 
 ## Blueprints
 
-- [BP-0001](blueprints/BP-0001-mvp-architecture-and-build-plan.md) — MVP architecture and build plan (BRD-0001, BRD-0002, BRD-0003) — status: draft
+- [BP-0001](blueprints/BP-0001-mvp-architecture-and-build-plan.md) — MVP architecture and build plan (BRD-0001, BRD-0002, BRD-0003) — status: approved
 
 <!-- - [BP-0001](blueprints/BP-0001-example.md) — Example plan (BRD-0001) — status: draft -->
 

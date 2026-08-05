@@ -2,7 +2,7 @@
 id: BP-0001
 title: MVP architecture and build plan
 implements: [BRD-0001, BRD-0002, BRD-0003]
-status: draft
+status: approved
 ---
 
 # BP-0001: MVP architecture and build plan
