@@ -7,7 +7,7 @@ framework-version: 4cf20c0   # optional — commit hash of the framework templat
 
 # Project Setup
 
-Work through these with the user. Delete the branch that doesn't apply. When all items are checked: set status to `done` above and move this file's line in `STATE.md` to `ARCHIVE.md`. Keep this file as a record of how the project was set up.
+Work through these with the user. Delete the branch that doesn't apply. Gate for `done`: every remaining checkbox checked **and** the inapplicable branch deleted — then set status above and move this file's line in `STATE.md` to `ARCHIVE.md`. Keep this file as a record of how the project was set up.
 
 ## All projects
 

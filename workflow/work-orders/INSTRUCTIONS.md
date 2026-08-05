@@ -4,7 +4,7 @@ A work order is a **self-contained implementation ticket**: an agent must be abl
 
 ## Process
 
-1. Write it from an approved BRD (and blueprint, if one exists) using the template below. Copy in the relevant requirement IDs and acceptance criteria — don't just link them.
+1. Write it from the approved BRD(s) — and blueprint, if one exists — using the template below. A WO's scope may span BRDs: scan the approved BRDs in `../STATE.md` and cite **every** requirement the scope touches, not just the BRD that prompted the ticket. Copy in the relevant requirement IDs and acceptance criteria — don't just link them.
 2. Add an index line to `../STATE.md`. Status `ready` means a user has reviewed it. Don't start a WO whose `depends-on` entries aren't at least `done`.
 3. To execute: set status `in-progress`, implement, run the testing plan, then follow `../validation/INSTRUCTIONS.md` before marking `done`. On marking `done`, tell the user validation should run in a **fresh session** (or a different agent) — implementers grade themselves too kindly. When every requirement of a BRD is covered by a `done` work order, set that BRD's status to `implemented`.
 4. If implementation reveals the WO is wrong, infeasible, or underspecified: stop, set it back to `draft`, list it under **Blocked** in `../STATE.md`, and raise it with the user — the fix may belong in the BRD or blueprint, not the WO.
@@ -28,7 +28,7 @@ For work with no business requirement: set `implements: none` and state the reas
 
 Gate criteria:
 
-- `ready`: user reviewed; ACs copied in (not just linked); `depends-on` identified; testing plan concrete (commands + cases); relevant decisions cited
+- `ready`: user reviewed; ACs copied in (not just linked); scope ↔ `implements` consistent both directions (everything in scope traces to a cited requirement; nothing cited is out of scope); `depends-on` identified; testing plan concrete (commands + cases); relevant decisions cited
 - `done`: full testing plan run and passing; `units-touched` filled; registry entries updated
 - `validated`: passing validation report exists
 
@@ -38,7 +38,7 @@ Gate criteria:
 ---
 id: WO-0001
 title: <ticket name>
-implements: [BRD-0001.R1, BRD-0001.R2]   # or none (maintenance — state reason in summary)
+implements: [BRD-0001.R2, BRD-0003.R1]   # may span BRDs; or none (maintenance — state reason in summary)
 blueprint: BP-0001   # or none
 depends-on: [WO-0002]   # or none
 units-touched: []   # registry UNIT ids created or modified; fill during implementation
