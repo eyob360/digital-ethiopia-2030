@@ -5,7 +5,7 @@ implements: [BRD-0001.R1, BRD-0001.R3, BRD-0003.R2]
 blueprint: BP-0001
 depends-on: [WO-0001]
 units-touched: [UNIT-0003, UNIT-0004, UNIT-0005, UNIT-0006, UNIT-0007, UNIT-0008, UNIT-0009]
-status: in-progress
+status: done
 ---
 
 # WO-0002: Data and auth foundation
@@ -61,3 +61,14 @@ Create the durable schema, migrations, seed data, and authentication/authorizati
 - `npx prisma validate`
 - Run migration/seed against the local PostgreSQL service or explain why it cannot run.
 - Unit-test role helper behavior and seed catalogue shape.
+
+## Completion evidence
+- `npm run lint` passed.
+- `npm test` passed: 4 test files, 10 tests.
+- `npm run format` passed.
+- `npm run build` passed.
+- `npx prisma validate` passed.
+- `npm run db:migrate` passed against local PostgreSQL: no pending migrations after applying `0001_initial`.
+- `npm run db:seed` passed against local PostgreSQL.
+- Seed verification query returned 10 KPI definitions and an unlocked `INGESTION` pipeline lock.
+- `npm audit --omit=dev` passed with 0 vulnerabilities.
