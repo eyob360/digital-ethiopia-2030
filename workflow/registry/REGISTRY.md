@@ -38,6 +38,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0035](UNIT-0035-ingestion-api-auth.md) — Ingestion API auth — src/server/api/ingestion-auth.ts
 - [UNIT-0036](UNIT-0036-raw-document-service.md) — Raw document service — src/server/raw-documents.ts
 - [UNIT-0037](UNIT-0037-tavily-search-provider.md) — Tavily search provider — src/server/search/tavily.ts
+- [UNIT-0039](UNIT-0039-n8n-ingestion-workflow.md) — n8n ingestion workflow — n8n/workflows/digital-ethiopia-ingestion.json
 - [UNIT-0040](UNIT-0040-external-contract-validators.md) — External contract validators — src/lib/integration/external-contracts.ts
 
 ## Endpoints
@@ -57,7 +58,3 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0030](UNIT-0030-pipeline-page.md) — Pipeline page — src/app/pipeline/page.tsx
 - [UNIT-0033](UNIT-0033-login-page.md) — Login page — src/app/login/page.tsx
 - [UNIT-0034](UNIT-0034-account-page.md) — Account page — src/app/account/page.tsx
-
-## Workflows
-
-- [UNIT-0039](UNIT-0039-n8n-ingestion-workflow.md) — n8n ingestion workflow — n8n/workflows/digital-ethiopia-ingestion.json

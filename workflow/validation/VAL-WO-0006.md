@@ -47,4 +47,4 @@ Non-blocking operational notes, carried forward for WO-0007 (integration hardeni
 Pass. BRD-0002's requirements (R1–R11, N1, N2 across WO-0003/WO-0004/WO-0006) are now all validated.
 
 ## Merge status
-Review cleared for merge after pass validation; branch ready to land on `main`.
+Review cleared after pass validation; branch merged to `main` (merge commit `6a43236`).

@@ -31,11 +31,3 @@ Work through these with the user. Delete the branch that doesn't apply. Gate for
   - **Spec-first** (default) — requirements approved before implementation
   - **Prototype-first** — frontend-only prototype to discover UX requirements, then backend integration; suits UX-heavy products or unsettled requirements (mechanics in `blueprints/INSTRUCTIONS.md`)
   Record the choice in `decisions/`.
-
-## Existing project
-
-- [ ] Read the codebase; fill in **Commands & stack** in `AGENTS.md`
-- [ ] Detect current conventions from the repo (git log, lint configs, structure); **present them to the user** to keep or change — record the outcome in `decisions/`. Never adopt silently: existing practice may be bad practice.
-- [ ] Ask the user: any fragile or no-touch areas ("landmines")? Record answers in `decisions/`
-- [ ] If the codebase lacks requirement docs, write baseline BRDs from the code (see `brds/INSTRUCTIONS.md`)
-- [ ] Seed `registry/` with the main existing reusable units found while reading the codebase (see `registry/INSTRUCTIONS.md`) — main ones only, not exhaustive

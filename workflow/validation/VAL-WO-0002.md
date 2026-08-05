@@ -31,11 +31,11 @@ Validated by a session that did not implement the work order. Live checks ran ag
 ## Drift observed
 None against the BRDs, BP-0001, or cited decisions. Two process/quality notes for the user:
 
-1. **No decision record for the new dependencies.** WO-0002 added `next-auth@4`, `@next-auth/prisma-adapter`, `pg`, and `@prisma/adapter-pg`. Conventions require recording new-dependency choices (and rejected alternatives) in `workflow/decisions/`; the rationale currently lives only in the work-order text. Worth capturing as a decision (e.g. the deliberate choice of stable v4 over the v5 beta).
+1. **No decision record for the new dependencies.** WO-0002 added `next-auth@4`, `@next-auth/prisma-adapter`, `pg`, and `@prisma/adapter-pg` without a decision record. *Resolved:* [D-0016](../decisions/D-0016-auth-database-dependencies.md) now records the choice of stable v4 over the v5 beta.
 2. **Catalogue duplication.** `prisma/seed.mjs` duplicates the KPI catalogue and scrypt hashing from `src/lib/kpi/initial-catalogue.ts` / `src/lib/auth/password.ts` (JS/TS boundary). The copies match today; a later change to one side could drift silently.
 
 ## Failures
 None.
 
 ## Merge status
-Held for user review before merge — WO-0002 touches auth, which the project conventions flag for mandatory user review even after validation passes.
+Was held for user review (auth-sensitive area); review completed and the branch merged to `main`.
