@@ -61,16 +61,18 @@ As a technical operator, I want fetched source content stored so that observatio
 
 **Acceptance criteria:**
 - AC1: When a candidate URL is fetched, the system shall extract readable raw text from the response.
-- AC2: When raw text is available, the system shall store `source_url`, `raw_text`, `content_hash`, and `created_at` in `raw_documents`.
-- AC3: When fetching fails after retry handling, the system shall skip that candidate URL without stopping unrelated KPI processing.
+- AC2: When raw text is available, the system shall compute a content hash before deciding whether to store the raw document.
+- AC3: When the content hash is new, the system shall store `source_url`, `raw_text`, `content_hash`, and `created_at` in `raw_documents`.
+- AC4: When the content hash already exists, the system shall not create another `raw_documents` row for the duplicate content.
+- AC5: When fetching fails after retry handling, the system shall skip that candidate URL without stopping unrelated KPI processing.
 
 ### BRD-0002.R6: Duplicate document detection
 As a technical operator, I want identical documents skipped so that the system avoids redundant processing and AI costs.
 
 **Acceptance criteria:**
 - AC1: When raw text is fetched, the system shall generate a SHA256 content hash.
-- AC2: When the content hash already exists in the database, the system shall stop processing that document branch.
-- AC3: When the content hash is new, the system shall continue to relevance classification.
+- AC2: When the content hash already exists in the database, the system shall stop processing that document branch before AI relevance classification.
+- AC3: When the content hash is new, the system shall store the raw document and continue to relevance classification.
 
 ### BRD-0002.R7: AI relevance gate
 As a program analyst, I want irrelevant documents rejected before extraction so that the system avoids noisy observations.
@@ -134,4 +136,4 @@ As a decision maker, I want every accepted KPI value retained historically so th
 - Vector search or chatbot behavior.
 
 ## Open questions
-- Should raw documents be stored before or after duplicate detection when the same content hash already exists?
+None.
