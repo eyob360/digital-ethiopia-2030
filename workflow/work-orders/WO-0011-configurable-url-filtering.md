@@ -5,7 +5,7 @@ implements: [BRD-0002.R4]
 blueprint: BP-0001
 depends-on: none
 units-touched: []
-status: ready
+status: in-progress
 ---
 
 # WO-0011: Operator-configurable URL filtering
