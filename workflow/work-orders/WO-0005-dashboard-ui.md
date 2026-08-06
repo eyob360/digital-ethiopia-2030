@@ -5,7 +5,7 @@ implements: [BRD-0001.R2, BRD-0003.R3, BRD-0003.R4, BRD-0003.R6]
 blueprint: BP-0001
 depends-on: [WO-0004, WO-0008]
 units-touched: [UNIT-0002, UNIT-0009, UNIT-0024, UNIT-0025, UNIT-0026, UNIT-0027, UNIT-0028, UNIT-0029, UNIT-0030, UNIT-0031, UNIT-0032, UNIT-0033, UNIT-0034]
-status: in-progress
+status: done
 ---
 
 # WO-0005: Dashboard UI
@@ -78,3 +78,4 @@ Build the MVP user-facing pages using the route SSOT and locked component style:
 - 2026-08-05: viewer route check confirmed operator pages redirect to `/` and dashboard navigation hides `KPI Admin` / `Pipeline`.
 - 2026-08-05: markup/CSS accessibility pass confirmed labelled form fields, semantic tables, keyboard-visible focus styles, non-viewport-scaled type, and review-flag visibility without approve/reject actions. Browser screenshot connector was unavailable, so visual inspection evidence is route/markup based.
 - 2026-08-06: re-validation with the D-0018 Playwright + axe-core harness (`e2e/`, committed): all functional ACs and keyboard/focus checks pass on executed evidence, but the axe WCAG 2.2 AA scan fails — success-tone `StatusBadge` text contrast is 3.66:1 (needs 4.5:1). WO back to `in-progress`; see `workflow/validation/VAL-WO-0005.md` for the fix direction.
+- 2026-08-06: contrast fix — `--color-success` darkened `150 59% 35%` → `150 59% 29%` in `src/app/globals.css` (token layer; the token's only consumers are the StatusBadge tone classes). Computed contrast of `text-success` over `bg-success/10` on the white card: 4.88:1 (8-bit quantized), above the 4.5:1 AA minimum with margin. Full committed harness re-run: `npx playwright test` 22/22 passed, including the two previously-failing axe scans. `npm run lint`, `npm test` (78/78, 20 files), and `npm run build` all pass.
