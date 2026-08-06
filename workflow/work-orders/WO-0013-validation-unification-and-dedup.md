@@ -17,7 +17,7 @@ units-touched:
     UNIT-0040,
     UNIT-0045,
   ]
-status: done
+status: validated
 ---
 
 # WO-0013: Validation-source unification and duplication cleanup
