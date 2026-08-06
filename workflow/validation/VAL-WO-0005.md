@@ -2,12 +2,14 @@
 id: VAL-WO-0005
 work-order: WO-0005
 date: 2026-08-06
-result: fail
+result: pass
 ---
 
 # Validation: WO-0005
 
-**Update 2026-08-06 (re-validation with D-0018 tooling):** the previously `blocked` behavioral accessibility criteria were executed with Playwright + axe-core per D-0018, in a fresh session that did not implement the work order. Keyboard access and focus visibility **pass** on executed evidence. The axe WCAG 2.2 AA scan **fails**: the success-tone `StatusBadge` (`text-success` on `bg-success/10`, 12px semibold) has a text contrast of **3.66:1**, below the 4.5:1 minimum of WCAG 2.2 AA SC 1.4.3 — a `serious` axe `color-contrast` violation on every MVP page that renders an "Auto accepted"/"Available" badge. Result revised `blocked` → `fail`; WO-0005 returns to `in-progress`. All functional criteria re-passed on executed browser evidence in the same run.
+**Update 2026-08-06 (round 2 — pass):** the round-1 contrast failure below is **resolved** by `22947ae` (`--color-success: 150 59% 35%` → `150 59% 29%` in `src/app/globals.css` — a surgical one-token change; grep confirms the token's only style consumers are the `StatusBadge` tone classes). Independently recomputed contrast (8-bit quantized, not taken from the implementor): `text-success` over `bg-success/10` is **4.88:1** on the white card and **4.69:1** on the page background — both above the 4.5:1 AA minimum. Full harness re-run by this validator: **22/22 passed**, including the two previously-failing axe scans (KPI detail "Auto accepted", pipeline "Available"), with no new axe violations and all keyboard/focus assertions still green. Additionally, the round-1 coverage gap was closed with an executed check: the test data was flipped so an *auto-accepted* observation is latest (making the overview render the success badge — the exact state that failed in round 1's first run), and the overview axe scan passed. WO-0005 → `validated`. The round-1 record below is retained as history; its "Failures" section describes the now-fixed defect.
+
+**Round 1, 2026-08-06 (re-validation with D-0018 tooling — superseded by round 2 above):** the previously `blocked` behavioral accessibility criteria were executed with Playwright + axe-core per D-0018, in a fresh session that did not implement the work order. Keyboard access and focus visibility **pass** on executed evidence. The axe WCAG 2.2 AA scan **fails**: the success-tone `StatusBadge` (`text-success` on `bg-success/10`, 12px semibold) has a text contrast of **3.66:1**, below the 4.5:1 minimum of WCAG 2.2 AA SC 1.4.3 — a `serious` axe `color-contrast` violation on every MVP page that renders an "Auto accepted"/"Available" badge. Result revised `blocked` → `fail`; WO-0005 returns to `in-progress`. All functional criteria re-passed on executed browser evidence in the same run.
 
 **Environment/evidence (repeatable):** local Docker PostgreSQL (`docker compose up -d`), `SEED_OPERATOR_PASSWORD=<pw> npm run db:seed`, `node e2e/validation-data.mjs setup` (viewer user + one auto-accepted and one review-flagged observation on "Digital economy share of GDP"), then `npx playwright test` (config starts `npm run dev` on port 3210 — port 3000 was occupied by an unrelated app). Harness committed in-repo: `playwright.config.ts`, `e2e/helpers.ts`, `e2e/dashboard-ui.spec.ts`, `e2e/accessibility.spec.ts`, `e2e/validation-data.mjs`; it is not part of `npm test` (vitest includes `src/**` only). Teardown ran after: DB left at 10 seeded KPIs, 0 observations, 0 users. Final run: 20 passed / 2 failed (both failures = the contrast violation). The app has a single light theme — no dark-mode variant exists to scan.
 
@@ -28,16 +30,18 @@ result: fail
 | BRD-0003.R6.AC6 (viewer hidden/denied) | pass | e2e — viewer nav lacks KPI Admin/Pipeline; direct viewer visits to both redirect to `/`; viewer retains read access to overview/detail |
 | Accessibility (D-0013/D-0018) — keyboard access | pass | e2e `accessibility.spec.ts` — login form fully keyboard-operable (Tab order, Enter submit); nav links, category filter (Enter toggles `aria-pressed`), admin fields, and history source links all keyboard reachable |
 | Accessibility (D-0013/D-0018) — visible focus | pass | e2e — every keyboard-focused element painted a non-none outline/box-shadow (computed-style assertion) |
-| Accessibility (D-0013/D-0018) — axe WCAG 2.2 AA | **fail** | axe (`wcag2a/2aa/21a/21aa/22aa` tags): `color-contrast` (serious) on the success `StatusBadge` — KPI detail ("Auto accepted") and pipeline ("Available") in the final run; overview too when a latest observation is auto-accepted (run 1). Login, admin, account pages scan clean; overview clean when no success badge renders |
+| Accessibility (D-0013/D-0018) — axe WCAG 2.2 AA | pass (round 2; failed round 1) | Round 1: `color-contrast` (serious) on the success `StatusBadge` — KPI detail, pipeline, and overview when a success badge renders. Round 2 after `22947ae`: all six page scans clean, including an extra overview scan with the success badge rendered |
 | Testing plan (lint/test/build) | pass | `npm run lint` clean, `npm test` 78/78 (20 files), `npm run build` all routes — re-run with the harness files present |
 | Registry | pass | UNIT-0002/0009/0024–0034 all indexed and pointing at existing paths |
 | Design-token discipline | pass | no hardcoded hex/rgb/px in `src/**/*.tsx` (grep) |
 
 ## Failures
 
-1. **WCAG 2.2 AA SC 1.4.3 (contrast) — success `StatusBadge` tone.** `src/components/dashboard/status-badge.tsx:8` — `success: "border-success/30 bg-success/10 text-success"`. `--color-success: 150 59% 35%` at 12px (`text-xs`) semibold over `bg-success/10` on a white card computes to **3.66:1**; the AA minimum for non-large text is 4.5:1. Axe flags it `serious` on every page rendering the badge: dashboard overview (when an auto-accepted observation is latest), KPI detail history ("Auto accepted"), pipeline ("Available"). Fix direction (implementer's choice): darken `--color-success` to ≥ 4.5:1 over the badge background (e.g. reduce lightness to ~30% or less — verify with the committed axe suite), or use dark foreground text on the success badge as the warning tone already does. Re-run `npx playwright test e2e/accessibility.spec.ts` (with an auto-accepted observation as the latest, so the overview badge is exercised — `node e2e/validation-data.mjs setup` provides one on the detail page) to confirm.
+None open. The single round-1 failure below was fixed by `22947ae` and re-verified with executed evidence in round 2 (see the update at the top).
 
-WO-0005 is back to `in-progress`. Everything else in this report passes on executed evidence; only the contrast fix needs implementing and a re-run of the committed accessibility suite.
+1. *(Resolved 2026-08-06, round 2)* **WCAG 2.2 AA SC 1.4.3 (contrast) — success `StatusBadge` tone.** `src/components/dashboard/status-badge.tsx:8` — `success: "border-success/30 bg-success/10 text-success"`. `--color-success: 150 59% 35%` at 12px (`text-xs`) semibold over `bg-success/10` on a white card computes to **3.66:1**; the AA minimum for non-large text is 4.5:1. Axe flags it `serious` on every page rendering the badge: dashboard overview (when an auto-accepted observation is latest), KPI detail history ("Auto accepted"), pipeline ("Available"). Fix direction (implementer's choice): darken `--color-success` to ≥ 4.5:1 over the badge background (e.g. reduce lightness to ~30% or less — verify with the committed axe suite), or use dark foreground text on the success badge as the warning tone already does. Re-run `npx playwright test e2e/accessibility.spec.ts` (with an auto-accepted observation as the latest, so the overview badge is exercised — `node e2e/validation-data.mjs setup` provides one on the detail page) to confirm.
+
+*(Round-1 disposition, superseded: WO-0005 went back to `in-progress` pending the contrast fix; round 2 validated the fix and the WO is `validated`.)*
 
 ## Drift observed
 
@@ -50,4 +54,4 @@ None against BRDs, BP-0001, or decisions (D-0010, D-0011, D-0012, D-0013, D-0016
 
 ## Merge status
 
-WO-0005's branch was merged to `main` before the 2026-08-05 rollback; the merge stands. The contrast fix is new work on `main` for a fresh session (small, single-component change) — validate with the committed e2e suite before closing.
+WO-0005's original branch was merged to `main` before the 2026-08-05 rollback; that merge stands. The round-2 material (e2e harness, contrast fix `22947ae`, this report) sits on branch `wo-0005-dashboard-ui`, validated and awaiting merge per the branch lifecycle. UI code touches auth-gated pages, so per the review convention the user reviews before merge.
