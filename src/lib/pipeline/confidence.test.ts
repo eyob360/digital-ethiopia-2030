@@ -38,8 +38,27 @@ describe("confidence gate", () => {
     });
   });
 
-  it("normalizes percentage-style confidence inputs", () => {
-    expect(normalizeConfidence("87")).toBe(0.87);
+  it("accepts only the documented 0-1 confidence scale", () => {
+    expect(normalizeConfidence(0)).toBe(0);
+    expect(normalizeConfidence(1)).toBe(1);
+    expect(normalizeConfidence("0.87")).toBe(0.87);
+    expect(normalizeConfidence(0.8765)).toBe(0.877);
+  });
+
+  it("rejects out-of-range confidence instead of rescaling it", () => {
+    // WO-0013: 1-100 style values were previously rescaled by /100; they are
+    // now rejected at the boundary like every other out-of-range input.
+    expect(normalizeConfidence("87")).toBeNull();
+    expect(normalizeConfidence(87)).toBeNull();
+    expect(normalizeConfidence(1.2)).toBeNull();
     expect(normalizeConfidence(120)).toBeNull();
+    expect(normalizeConfidence(-0.1)).toBeNull();
+    expect(normalizeConfidence(Number.NaN)).toBeNull();
+
+    expect(applyConfidenceGate(85)).toEqual({
+      action: "reject",
+      reviewFlag: null,
+      confidence: null,
+    });
   });
 });

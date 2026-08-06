@@ -1,3 +1,5 @@
+import { parseConfidence } from "../integration/external-contracts";
+
 export type ConfidenceGateDecision =
   | { action: "insert"; reviewFlag: false; confidence: number }
   | { action: "insert"; reviewFlag: true; confidence: number }
@@ -22,26 +24,19 @@ export function applyConfidenceGate(
   return { action: "insert", reviewFlag: false, confidence: normalizedConfidence };
 }
 
+// Confidence values must already be on the documented 0-1 scale; the range
+// check is owned by the external-contracts validator (UNIT-0040) so the
+// n8n-side and app-side gates cannot drift apart. Out-of-range values
+// (including 1-100 style percentages) are rejected, never rescaled.
 export function normalizeConfidence(confidence: number | string | null | undefined) {
   if (confidence === null || confidence === undefined || confidence === "") {
     return null;
   }
 
   const value = typeof confidence === "number" ? confidence : Number(confidence);
+  const parsedConfidence = parseConfidence(value);
 
-  if (!Number.isFinite(value)) {
-    return null;
-  }
-
-  if (value > 1 && value <= 100) {
-    return roundConfidence(value / 100);
-  }
-
-  if (value < 0 || value > 1) {
-    return null;
-  }
-
-  return roundConfidence(value);
+  return parsedConfidence === null ? null : roundConfidence(parsedConfidence);
 }
 
 function roundConfidence(value: number) {
