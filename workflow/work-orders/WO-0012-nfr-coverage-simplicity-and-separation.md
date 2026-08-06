@@ -5,7 +5,7 @@ implements: [BRD-0001.N1, BRD-0003.N1]
 blueprint: BP-0001
 depends-on: none
 units-touched: []
-status: done
+status: in-progress
 ---
 
 # WO-0012: NFR coverage — operational simplicity and separation of concerns
