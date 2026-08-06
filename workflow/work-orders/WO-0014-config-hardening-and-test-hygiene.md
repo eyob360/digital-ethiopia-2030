@@ -5,7 +5,7 @@ implements: none
 blueprint: none
 depends-on: [WO-0013]
 units-touched: [UNIT-0005, UNIT-0035, UNIT-0017, UNIT-0018, UNIT-0039]
-status: done
+status: validated
 ---
 
 # WO-0014: Config fail-loud, timing-safe key compare, and test hygiene

@@ -26,7 +26,7 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 - [WO-0011](work-orders/WO-0011-configurable-url-filtering.md) — Operator-configurable URL filtering (BRD-0002, BP-0001) — status: validated
 - [WO-0012](work-orders/WO-0012-nfr-coverage-simplicity-and-separation.md) — NFR coverage: operational simplicity and separation of concerns (BRD-0001, BRD-0003, BP-0001) — status: validated
 - [WO-0013](work-orders/WO-0013-validation-unification-and-dedup.md) — Validation-source unification and duplication cleanup (maintenance) — status: validated
-- [WO-0014](work-orders/WO-0014-config-hardening-and-test-hygiene.md) — Config fail-loud, timing-safe key compare, and test hygiene (maintenance) — status: done (branch off WO-0013's; validate fresh, then merge waits on user review of WO-0013 and of this WO's auth change)
+- [WO-0014](work-orders/WO-0014-config-hardening-and-test-hygiene.md) — Config fail-loud, timing-safe key compare, and test hygiene (maintenance) — status: validated (VAL-WO-0014; branch stacked on WO-0013's — merging waits on user review of BOTH WO-0013 (core business rules) and WO-0014 (auth code), in that order)
 
 ## Blocked / Needs user input
 
