@@ -5,10 +5,22 @@ import { join } from "node:path";
 type WorkflowNode = {
   name: string;
   type: string;
+  typeVersion?: number;
   retryOnFail?: boolean;
   maxTries?: number;
   waitBetweenTries?: number;
   parameters?: Record<string, unknown>;
+};
+
+type IfConditions = {
+  options?: { version?: number };
+  combinator?: string;
+  conditions?: Array<{
+    id?: string;
+    leftValue?: unknown;
+    rightValue?: unknown;
+    operator?: { type?: string; operation?: string };
+  }>;
 };
 
 type WorkflowExport = {
@@ -114,7 +126,16 @@ describe("n8n ingestion workflow export", () => {
       expect.arrayContaining(["Complete Pipeline Run", "More Priority URLs?"]),
     );
     expect(findNode("Extract Readable Text").parameters?.jsCode).toContain(
-      "$('Expand Priority URLs').item.json",
+      "$('Has URL?').item.json",
+    );
+    expect(findNode("Extract Readable Text").parameters?.jsCode).not.toContain(
+      "$('Expand Priority URLs')",
+    );
+    expect(findNode("Expand Priority URLs").parameters?.jsCode).toContain(
+      "contextFrom('Priority URLs First')",
+    );
+    expect(findNode("Mark Fallback Used").parameters?.jsCode).toContain(
+      "contextFrom('Priority URLs First')",
     );
     expect(findNode("Validate Relevance JSON").parameters?.jsCode).toContain(
       "$('Store Raw Document').item.json",
@@ -146,30 +167,80 @@ describe("n8n ingestion workflow export", () => {
     expect(findNode("Complete Pipeline Run").parameters?.jsonBody).toContain('"branchKey"');
   });
 
+  it("declares every IF node's conditions in the format matching its typeVersion", () => {
+    const ifNodes = workflow.nodes.filter((node) => node.type === "n8n-nodes-base.if");
+    expect(ifNodes).toHaveLength(12);
+
+    for (const node of ifNodes) {
+      const conditions = node.parameters?.conditions as IfConditions | undefined;
+      expect(conditions, node.name).toBeDefined();
+
+      if ((node.typeVersion ?? 1) >= 2) {
+        // Legacy typeVersion-1 shapes under a typeVersion-2 IF node never evaluate:
+        // every item silently routes to the true output (VAL-WO-0010 round 2, Failure 1).
+        for (const legacyKey of ["boolean", "string", "number", "dateTime"]) {
+          expect(conditions, `${node.name} uses legacy '${legacyKey}' shape`).not.toHaveProperty(
+            legacyKey,
+          );
+        }
+        expect(conditions?.options?.version, node.name).toBe(2);
+        expect(conditions?.combinator, node.name).toBe("and");
+        expect(Array.isArray(conditions?.conditions), node.name).toBe(true);
+        expect((conditions?.conditions ?? []).length, node.name).toBeGreaterThan(0);
+        for (const rule of conditions?.conditions ?? []) {
+          expect(typeof rule.id, node.name).toBe("string");
+          expect(typeof rule.leftValue, node.name).toBe("string");
+          expect(typeof rule.operator?.type, node.name).toBe("string");
+          expect(typeof rule.operator?.operation, node.name).toBe("string");
+        }
+      } else {
+        expect(conditions, node.name).not.toHaveProperty("combinator");
+      }
+    }
+  });
+
   it("routes rejected priority observation candidates toward fallback search", () => {
     expect(findNode("Store Observation").parameters?.jsonBody).toBe("={{$json}}");
     expect(findNode("Observation Accepted?").parameters).toMatchObject({
       conditions: {
-        string: [
+        options: { version: 2 },
+        combinator: "and",
+        conditions: [
           {
-            value1: "={{$json.status}}",
-            operation: "equal",
-            value2: "inserted",
+            leftValue: "={{ $json.status ?? '' }}",
+            rightValue: "inserted",
+            operator: { type: "string", operation: "equals" },
           },
         ],
       },
     });
-    expect(outgoingNodeNames("Observation Accepted?")).toEqual([
-      "Complete Pipeline Run",
-      "More Priority URLs?",
-    ]);
-    expect(outgoingNodeNames("More Priority URLs?")).toEqual(
-      expect.arrayContaining(["Increment Priority Index", "Fallback Already Used?"]),
-    );
-    expect(outgoingNodeNames("Fallback Already Used?")).toEqual(
-      expect.arrayContaining(["Complete Pipeline Run", "Mark Fallback Used"]),
-    );
+
+    // Rejected observations (false output, index 1) must head toward fallback,
+    // never straight to completion.
+    expect(branchTargets("Observation Accepted?", 0)).toEqual(["Complete Pipeline Run"]);
+    expect(branchTargets("Observation Accepted?", 1)).toEqual(["More Priority URLs?"]);
+    expect(branchTargets("More Priority URLs?", 0)).toEqual(["Increment Priority Index"]);
+    expect(branchTargets("More Priority URLs?", 1)).toEqual(["Fallback Already Used?"]);
+    expect(branchTargets("Fallback Already Used?", 0)).toEqual(["Complete Pipeline Run"]);
+    expect(branchTargets("Fallback Already Used?", 1)).toEqual(["Mark Fallback Used"]);
     expect(outgoingNodeNames("Mark Fallback Used")).toEqual(["OpenAI Query Generation"]);
+
+    // Once-per-KPI fallback guard: Mark Fallback Used flips the flag, and the
+    // Fallback Already Used? gate completes the branch when it is already set.
+    expect(findNode("Mark Fallback Used").parameters?.jsCode).toContain("fallbackUsed: true");
+    expect(findNode("Fallback Already Used?").parameters).toMatchObject({
+      conditions: {
+        conditions: [
+          {
+            leftValue: "={{ $json.fallbackUsed === true }}",
+            operator: { type: "boolean", operation: "true" },
+          },
+        ],
+      },
+    });
+    const morePriorityConditions = findNode("More Priority URLs?").parameters
+      ?.conditions as IfConditions;
+    expect(morePriorityConditions.conditions?.[0]?.leftValue).toContain("!$json.fallbackUsed");
   });
 
   it("uses the app raw-document endpoint as the document budget authority", () => {
@@ -241,6 +312,13 @@ function outgoingNodeNames(name: string) {
     { main?: Array<Array<{ node: string }>> } | undefined;
 
   return connection?.main?.flatMap((branch) => branch.map((target) => target.node)) ?? [];
+}
+
+function branchTargets(name: string, outputIndex: number) {
+  const connection = workflow.connections[name] as
+    { main?: Array<Array<{ node: string }>> } | undefined;
+
+  return connection?.main?.[outputIndex]?.map((target) => target.node) ?? [];
 }
 
 function readJson<T = unknown>(path: string): T {

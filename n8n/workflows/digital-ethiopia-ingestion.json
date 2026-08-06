@@ -48,12 +48,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.started}}",
-              "value2": true
+              "id": "run-started-1",
+              "leftValue": "={{ $json.started === true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "run-started",
@@ -85,12 +97,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.needsFallback}}",
-              "value2": false
+              "id": "has-priority-1",
+              "leftValue": "={{ $json.needsFallback === false }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "has-priority",
@@ -101,7 +125,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const priorityIndex = $json.priorityIndex ?? 0;\nconst url = ($json.candidateUrls ?? [])[priorityIndex];\nreturn url ? [{ json: { ...$json, url, sourceType: 'priority', priorityIndex, fallbackUsed: false } }] : [{ json: { ...$json, terminalReason: 'priority-urls-exhausted' } }];"
+        "jsCode": "function contextFrom(nodeName) { try { return $(nodeName).item.json ?? {}; } catch { return {}; } }\nconst base = { ...contextFrom('Priority URLs First'), ...$json };\nconst priorityIndex = base.priorityIndex ?? 0;\nconst url = (base.candidateUrls ?? [])[priorityIndex];\nreturn url ? [{ json: { ...base, url, sourceType: 'priority', priorityIndex, fallbackUsed: false } }] : [{ json: { ...base, url: null, terminalReason: 'priority-urls-exhausted' } }];"
       },
       "id": "expand-priority-urls",
       "name": "Expand Priority URLs",
@@ -112,12 +136,24 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.url}}",
-              "operation": "isNotEmpty"
+              "id": "has-url-1",
+              "leftValue": "={{ typeof $json.url === 'string' && $json.url !== '' }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "has-url",
@@ -143,7 +179,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const context = $('Expand Priority URLs').item.json;\nconst rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...context, rawText } }] : [{ json: { ...context, terminalReason: 'no-readable-text' } }];"
+        "jsCode": "const context = $('Has URL?').item.json;\nconst rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...context, rawText } }] : [{ json: { ...context, terminalReason: 'no-readable-text' } }];"
       },
       "id": "extract-readable-text",
       "name": "Extract Readable Text",
@@ -154,12 +190,24 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.rawText}}",
-              "operation": "isNotEmpty"
+              "id": "has-raw-text-1",
+              "leftValue": "={{ typeof $json.rawText === 'string' && $json.rawText !== '' }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "has-raw-text",
@@ -198,13 +246,24 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.status}}",
-              "operation": "equal",
-              "value2": "stored"
+              "id": "new-document-1",
+              "leftValue": "={{ $json.status ?? '' }}",
+              "rightValue": "stored",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "new-document",
@@ -216,12 +275,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.fallbackUsed}}",
-              "value2": true
+              "id": "fallback-already-used-1",
+              "leftValue": "={{ $json.fallbackUsed === true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "fallback-already-used",
@@ -232,7 +303,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return [{ json: { ...$json, fallbackUsed: true } }];"
+        "jsCode": "function contextFrom(nodeName) { try { return $(nodeName).item.json ?? {}; } catch { return {}; } }\nreturn [{ json: { ...contextFrom('Priority URLs First'), ...$json, fallbackUsed: true } }];"
       },
       "id": "mark-fallback-used",
       "name": "Mark Fallback Used",
@@ -243,12 +314,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.sourceType === 'priority' && (($json.priorityIndex ?? 0) + 1) < ($json.candidateUrls ?? []).length && !$json.fallbackUsed}}",
-              "value2": true
+              "id": "more-priority-urls-1",
+              "leftValue": "={{ $json.sourceType === 'priority' && (($json.priorityIndex ?? 0) + 1) < ($json.candidateUrls ?? []).length && !$json.fallbackUsed }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "more-priority-urls",
@@ -307,12 +390,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{typeof $json.relevance?.relevant === 'boolean'}}",
-              "value2": true
+              "id": "has-relevance-json-1",
+              "leftValue": "={{ typeof $json.relevance?.relevant === 'boolean' }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "has-relevance-json",
@@ -324,12 +419,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.relevance.relevant}}",
-              "value2": true
+              "id": "is-relevant-1",
+              "leftValue": "={{ $json.relevance?.relevant === true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "is-relevant",
@@ -378,12 +485,24 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.kpiId}}",
-              "operation": "isNotEmpty"
+              "id": "has-extraction-json-1",
+              "leftValue": "={{ typeof $json.kpiId === 'string' && $json.kpiId !== '' }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "has-extraction-json",
@@ -422,13 +541,24 @@
     {
       "parameters": {
         "conditions": {
-          "string": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{$json.status}}",
-              "operation": "equal",
-              "value2": "inserted"
+              "id": "observation-accepted-1",
+              "leftValue": "={{ $json.status ?? '' }}",
+              "rightValue": "inserted",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "observation-accepted",
@@ -477,12 +607,24 @@
     {
       "parameters": {
         "conditions": {
-          "boolean": [
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "value1": "={{Array.isArray($json.queries) && $json.queries.length >= 3}}",
-              "value2": true
+              "id": "has-query-json-1",
+              "leftValue": "={{ Array.isArray($json.queries) && $json.queries.length >= 3 }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
             }
-          ]
+          ],
+          "combinator": "and"
         }
       },
       "id": "has-query-json",
