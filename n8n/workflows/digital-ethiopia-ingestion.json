@@ -241,7 +241,7 @@
       "retryOnFail": true,
       "maxTries": 5,
       "waitBetweenTries": 2000,
-      "onError": "continueRegularOutput"
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -536,7 +536,7 @@
       "retryOnFail": true,
       "maxTries": 5,
       "waitBetweenTries": 2000,
-      "onError": "continueRegularOutput"
+      "onError": "continueErrorOutput"
     },
     {
       "parameters": {
@@ -723,6 +723,16 @@
       "maxTries": 5,
       "waitBetweenTries": 2000,
       "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "function contextFrom(nodeName) { try { return $(nodeName).item.json ?? {}; } catch { return {}; } }\nreturn [{ json: { ...contextFrom('Priority URLs First'), ...$json, terminalReason: 'store-error' } }];"
+      },
+      "id": "store-error-context",
+      "name": "Store Error Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3520, -160]
     }
   ],
   "connections": {
@@ -769,7 +779,10 @@
       ]
     },
     "Store Raw Document": {
-      "main": [[{ "node": "New Document?", "type": "main", "index": 0 }]]
+      "main": [
+        [{ "node": "New Document?", "type": "main", "index": 0 }],
+        [{ "node": "Store Error Context", "type": "main", "index": 0 }]
+      ]
     },
     "New Document?": {
       "main": [
@@ -826,7 +839,13 @@
       ]
     },
     "Store Observation": {
-      "main": [[{ "node": "Observation Accepted?", "type": "main", "index": 0 }]]
+      "main": [
+        [{ "node": "Observation Accepted?", "type": "main", "index": 0 }],
+        [{ "node": "Store Error Context", "type": "main", "index": 0 }]
+      ]
+    },
+    "Store Error Context": {
+      "main": [[{ "node": "Complete Pipeline Run", "type": "main", "index": 0 }]]
     },
     "Observation Accepted?": {
       "main": [

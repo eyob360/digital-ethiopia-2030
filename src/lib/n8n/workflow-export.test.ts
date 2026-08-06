@@ -9,6 +9,7 @@ type WorkflowNode = {
   retryOnFail?: boolean;
   maxTries?: number;
   waitBetweenTries?: number;
+  onError?: string;
   parameters?: Record<string, unknown>;
 };
 
@@ -52,6 +53,7 @@ describe("n8n ingestion workflow export", () => {
         "OpenAI Structured Extraction",
         "Store Observation",
         "Observation Accepted?",
+        "Store Error Context",
         "Complete Pipeline Run",
       ]),
     );
@@ -121,7 +123,7 @@ describe("n8n ingestion workflow export", () => {
       expect.arrayContaining(["Complete Pipeline Run", "Mark Fallback Used"]),
     );
     expect(outgoingNodeNames("Mark Fallback Used")).toEqual(["OpenAI Query Generation"]);
-    expect(outgoingNodeNames("Store Observation")).toEqual(["Observation Accepted?"]);
+    expect(branchTargets("Store Observation", 0)).toEqual(["Observation Accepted?"]);
     expect(outgoingNodeNames("Observation Accepted?")).toEqual(
       expect.arrayContaining(["Complete Pipeline Run", "More Priority URLs?"]),
     );
@@ -241,6 +243,28 @@ describe("n8n ingestion workflow export", () => {
     const morePriorityConditions = findNode("More Priority URLs?").parameters
       ?.conditions as IfConditions;
     expect(morePriorityConditions.conditions?.[0]?.leftValue).toContain("!$json.fallbackUsed");
+  });
+
+  it("terminates store-error lanes at branch completion without re-arming fallback", () => {
+    // A store-node error is an app failure, not a rejected observation: it must
+    // exit through the explicit error output straight to branch completion. When
+    // error items ({error} with no status/fallbackUsed) looped back through the
+    // fallback gates, `Fallback Already Used?` evaluated false on every lap and
+    // fallback re-armed unboundedly (VAL-WO-0010 round 3, Failure 1 / S8).
+    for (const storeName of ["Store Raw Document", "Store Observation"]) {
+      expect(findNode(storeName).onError, storeName).toBe("continueErrorOutput");
+      expect(branchTargets(storeName, 1), storeName).toEqual(["Store Error Context"]);
+    }
+    expect(branchTargets("Store Raw Document", 0)).toEqual(["New Document?"]);
+    expect(branchTargets("Store Observation", 0)).toEqual(["Observation Accepted?"]);
+
+    // The error lane goes only to completion — never back into the fallback
+    // gates — and rehydrates runId/branchKey from a lineage-safe back-reference
+    // so the completion call can still release the branch.
+    expect(outgoingNodeNames("Store Error Context")).toEqual(["Complete Pipeline Run"]);
+    expect(findNode("Store Error Context").parameters?.jsCode).toContain(
+      "contextFrom('Priority URLs First')",
+    );
   });
 
   it("uses the app raw-document endpoint as the document budget authority", () => {
