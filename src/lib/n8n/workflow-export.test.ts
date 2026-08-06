@@ -113,14 +113,32 @@ describe("n8n ingestion workflow export", () => {
     expect(outgoingNodeNames("Observation Accepted?")).toEqual(
       expect.arrayContaining(["Complete Pipeline Run", "More Priority URLs?"]),
     );
-    expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
-      "sourceType: $json.sourceType",
+    expect(findNode("Extract Readable Text").parameters?.jsCode).toContain(
+      "$('Expand Priority URLs').item.json",
+    );
+    expect(findNode("Validate Relevance JSON").parameters?.jsCode).toContain(
+      "$('Store Raw Document').item.json",
     );
     expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
-      "candidateUrls: $json.candidateUrls",
+      "$('Store Raw Document').item.json",
     );
     expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
-      "priorityIndex: $json.priorityIndex",
+      "sourceType: context.sourceType",
+    );
+    expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
+      "candidateUrls: context.candidateUrls",
+    );
+    expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
+      "priorityIndex: context.priorityIndex",
+    );
+    expect(findNode("Validate Query JSON").parameters?.jsCode).toContain(
+      "contextFrom('Mark Fallback Used')",
+    );
+    expect(findNode("Validate Query JSON").parameters?.jsCode).toContain(
+      "contextFrom('Priority URLs First')",
+    );
+    expect(findNode("Expand Filtered URLs").parameters?.jsCode).toContain(
+      "$('Validate Query JSON').item.json",
     );
     expect(findNode("Expand KPI Batch").parameters?.jsCode).toContain("runId: $json.runId");
     expect(findNode("Expand KPI Batch").parameters?.jsCode).toContain("branchKey: kpi.id");

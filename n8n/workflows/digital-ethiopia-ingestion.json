@@ -143,7 +143,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...$json, rawText } }] : [{ json: { ...$json, terminalReason: 'no-readable-text' } }];"
+        "jsCode": "const context = $('Expand Priority URLs').item.json;\nconst rawText = typeof $json.body === 'string' ? $json.body.replace(/<script[\\s\\S]*?<\\/script>/gi, '').replace(/<style[\\s\\S]*?<\\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\\s+/g, ' ').trim() : '';\nreturn rawText ? [{ json: { ...context, rawText } }] : [{ json: { ...context, terminalReason: 'no-readable-text' } }];"
       },
       "id": "extract-readable-text",
       "name": "Extract Readable Text",
@@ -296,7 +296,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-relevance-json' } }]; }\nif (typeof parsed?.relevant !== 'boolean' || typeof parsed?.confidence !== 'number') return [{ json: { ...$json, terminalReason: 'invalid-relevance-json' } }];\nreturn [{ json: { ...$json, relevance: parsed } }];"
+        "jsCode": "const context = $('Store Raw Document').item.json;\nconst text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...context, terminalReason: 'invalid-relevance-json' } }]; }\nif (typeof parsed?.relevant !== 'boolean' || typeof parsed?.confidence !== 'number') return [{ json: { ...context, terminalReason: 'invalid-relevance-json' } }];\nreturn [{ json: { ...context, relevance: parsed } }];"
       },
       "id": "validate-relevance-json",
       "name": "Validate Relevance JSON",
@@ -367,7 +367,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }]; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [{ json: { ...$json, terminalReason: 'invalid-extraction-json' } }];\nreturn [{ json: { runId: $json.runId, branchKey: $json.branchKey, kpiId: $json.kpi.id, rawDocumentId: $json.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: $json.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation, fallbackUsed: $json.fallbackUsed, sourceType: $json.sourceType, candidateUrls: $json.candidateUrls, priorityIndex: $json.priorityIndex } }];"
+        "jsCode": "const context = $('Store Raw Document').item.json;\nconst text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...context, terminalReason: 'invalid-extraction-json' } }]; }\nconst required = ['value_numeric', 'unit', 'region', 'observed_date', 'explanation', 'confidence'];\nif (!required.every((key) => Object.prototype.hasOwnProperty.call(parsed, key))) return [{ json: { ...context, terminalReason: 'invalid-extraction-json' } }];\nreturn [{ json: { runId: context.runId, branchKey: context.branchKey, kpiId: context.kpi.id, rawDocumentId: context.rawDocument.id, value: parsed.value_numeric, unit: parsed.unit, region: parsed.region, observedDate: parsed.observed_date, sourceUrl: context.rawDocument.sourceUrl, aiConfidence: parsed.confidence, explanation: parsed.explanation, fallbackUsed: context.fallbackUsed, sourceType: context.sourceType, candidateUrls: context.candidateUrls, priorityIndex: context.priorityIndex } }];"
       },
       "id": "validate-extraction-json",
       "name": "Validate Extraction JSON",
@@ -466,7 +466,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...$json, terminalReason: 'invalid-query-json' } }]; }\nconst queries = Array.isArray(parsed?.queries) ? parsed.queries.filter((query) => typeof query === 'string' && query.trim()).slice(0, 5) : [];\nif (queries.length < 3 || queries.length > 5) return [{ json: { ...$json, terminalReason: 'invalid-query-json' } }];\nreturn [{ json: { ...$json, queries } }];"
+        "jsCode": "function contextFrom(nodeName) { try { return $(nodeName).item.json ?? {}; } catch { return {}; } }\nconst markedContext = contextFrom('Mark Fallback Used');\nconst initialContext = contextFrom('Priority URLs First');\nconst context = markedContext.runId ? markedContext : { ...initialContext, fallbackUsed: true };\nconst text = $json.output_text ?? $json.choices?.[0]?.message?.content ?? '';\nlet parsed;\ntry { parsed = typeof text === 'string' ? JSON.parse(text) : text; } catch { return [{ json: { ...context, terminalReason: 'invalid-query-json' } }]; }\nconst queries = Array.isArray(parsed?.queries) ? parsed.queries.filter((query) => typeof query === 'string' && query.trim()).slice(0, 5) : [];\nif (queries.length < 3 || queries.length > 5) return [{ json: { ...context, terminalReason: 'invalid-query-json' } }];\nreturn [{ json: { ...context, queries } }];"
       },
       "id": "validate-query-json",
       "name": "Validate Query JSON",
@@ -547,7 +547,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const urls = ($json.urls ?? []).slice(0, 5);\nreturn urls.length ? urls.map((item) => ({ json: { ...$json, url: item.url, sourceType: 'fallback', fallbackUsed: true } })) : [{ json: { ...$json, terminalReason: 'no-filtered-urls', fallbackUsed: true } }];"
+        "jsCode": "const context = $('Validate Query JSON').item.json;\nconst urls = ($json.urls ?? []).slice(0, 5);\nreturn urls.length ? urls.map((item) => ({ json: { ...context, url: item.url, sourceType: 'fallback', fallbackUsed: true } })) : [{ json: { ...context, terminalReason: 'no-filtered-urls', fallbackUsed: true } }];"
       },
       "id": "expand-filtered-urls",
       "name": "Expand Filtered URLs",
@@ -719,5 +719,5 @@
     "timezone": "Africa/Addis_Ababa"
   },
   "pinData": {},
-  "versionId": "digital-ethiopia-2030-wo-0009"
+  "versionId": "digital-ethiopia-2030-wo-0010"
 }
