@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `TavilySearchProvider.search({ queries, maxResults })` and `parseSearchInput(input)`.
 
-**Variants/options:** Requires `TAVILY_API_KEY`; deduplicates returned URLs and caps results.
+**Variants/options:** Requires `TAVILY_API_KEY`; deduplicates returned URLs and caps results. Tavily responses and search-query inputs are validated with the strict UNIT-0040 contracts (`parseTavilySearchResponse`, `parseOpenAiQueryGeneration`); malformed result rows are dropped, not patched up (WO-0013).

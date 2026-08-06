@@ -1,3 +1,8 @@
+import {
+  parseOpenAiQueryGeneration,
+  parseTavilySearchResponse,
+} from "../../lib/integration/external-contracts";
+
 export type SearchProvider = {
   search(input: SearchProviderInput): Promise<SearchProviderResult[]>;
 };
@@ -14,14 +19,6 @@ export type SearchProviderResult = {
 };
 
 export class SearchProviderConfigError extends Error {}
-
-type TavilyResponse = {
-  results?: Array<{
-    title?: unknown;
-    url?: unknown;
-    content?: unknown;
-  }>;
-};
 
 export class TavilySearchProvider implements SearchProvider {
   constructor(
@@ -60,18 +57,16 @@ export class TavilySearchProvider implements SearchProvider {
         throw new Error(`Tavily search failed with status ${response.status}`);
       }
 
-      const body = (await response.json()) as TavilyResponse;
-      for (const result of body.results ?? []) {
-        if (typeof result.url !== "string" || seenUrls.has(result.url)) {
+      // Strict external contract (UNIT-0040): result rows without a non-empty
+      // title or a valid http(s) URL are dropped instead of patched up.
+      const contract = parseTavilySearchResponse(await response.json());
+      for (const result of contract?.results ?? []) {
+        if (seenUrls.has(result.url)) {
           continue;
         }
 
         seenUrls.add(result.url);
-        results.push({
-          title: typeof result.title === "string" ? result.title : result.url,
-          url: result.url,
-          content: typeof result.content === "string" ? result.content : undefined,
-        });
+        results.push(result);
 
         if (results.length >= maxResults) {
           return results;
@@ -89,16 +84,13 @@ export function parseSearchInput(input: unknown): SearchProviderInput | null {
   }
 
   const record = input as Record<string, unknown>;
-  const queries = Array.isArray(record.queries)
-    ? record.queries.filter((query): query is string => typeof query === "string" && !!query.trim())
-    : [];
-
-  if (!queries.length) {
+  const generation = parseOpenAiQueryGeneration(record);
+  if (!generation) {
     return null;
   }
 
   return {
-    queries: queries.map((query) => query.trim()),
+    queries: generation.queries,
     maxResults:
       typeof record.maxResults === "number" && record.maxResults > 0
         ? Math.floor(record.maxResults)

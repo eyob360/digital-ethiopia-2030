@@ -38,6 +38,24 @@ describe("TavilySearchProvider", () => {
     ]);
   });
 
+  it("drops malformed result rows under the strict external contract", async () => {
+    const provider = new TavilySearchProvider({
+      apiKey: "test-key",
+      fetchImpl: async () =>
+        Response.json({
+          results: [
+            { url: "https://example.com/no-title" },
+            { title: "FTP", url: "ftp://example.com/file" },
+            { title: "Good", url: "https://example.com/good", content: " Trimmed " },
+          ],
+        }),
+    });
+
+    expect(await provider.search({ queries: ["digital economy ethiopia"] })).toEqual([
+      { title: "Good", url: "https://example.com/good", content: "Trimmed" },
+    ]);
+  });
+
   it("surfaces Tavily HTTP failures for n8n node retries", async () => {
     const provider = new TavilySearchProvider({
       apiKey: "test-key",
