@@ -5,7 +5,7 @@ implements: [BRD-0002.R1]
 blueprint: BP-0001
 depends-on: [WO-0009]
 units-touched: [UNIT-0038, UNIT-0039]
-status: done
+status: validated
 ---
 
 # WO-0010: Fallback search reachability for rejected observations
