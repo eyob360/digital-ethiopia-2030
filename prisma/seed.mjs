@@ -3,9 +3,22 @@ import { PrismaClient } from "@prisma/client";
 import { randomBytes, scrypt } from "node:crypto";
 import { promisify } from "node:util";
 
-const databaseUrl =
-  process.env.DATABASE_URL ??
-  "postgresql://postgres:postgres@localhost:5432/digital_ethiopia_2030?schema=public";
+try {
+  // The Prisma CLI does not load .env before running the seed command; when the
+  // seed runs directly (`node prisma/seed.mjs`), pick up the local .env without
+  // overriding variables already set in the environment.
+  process.loadEnvFile();
+} catch {
+  // No .env file — rely on the process environment.
+}
+
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl) {
+  throw new Error(
+    "DATABASE_URL is not set. Configure it in your environment or .env file (see .env.example).",
+  );
+}
 
 const adapter = new PrismaPg({
   connectionString: databaseUrl,
