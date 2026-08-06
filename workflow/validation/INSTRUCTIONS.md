@@ -19,7 +19,7 @@ For a work order with status `done` (for maintenance WOs — `implements: none` 
 3. Check for drift: does the implementation contradict the BRD, blueprint, or **any recorded decision** (check `../DECISIONS.md` beyond just those cited in the work order — e.g. dependency and convention choices)? If so, report to the user — don't silently fix either side.
 4. Check for duplication: do the new units overlap an existing registry entry — or each other? Same-WO duplication is the common agent failure; compare the WO's new units against the registry *and* among themselves.
 5. Write a report from the template below, saved in this folder as `VAL-WO-XXXX.md` (one report per work order — on re-validation, update the same file with the new date and result; likewise, when a hold or failure noted in a report is later resolved, update the report so it never contradicts current state). If everything passes: set the WO to `validated`, update `../STATE.md`, and when all of a BRD's requirements are validated, update the BRD's status too.
-6. If anything fails: list failures in the report, set the WO back to `in-progress`, and note it in STATE.md.
+6. If anything fails: list failures in the report, set the WO back to `in-progress`, and note it in STATE.md. The fix is a **fresh session's** job — write the report so it suffices alone. If a finding refutes evidence an earlier report relied on, flag every status resting on that evidence (report → WO → BRD) for rollback review, and say so in the report.
 
 ## Drift audits
 
