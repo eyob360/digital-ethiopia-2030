@@ -10,6 +10,6 @@ status: active
 
 **Purpose:** Server-side KPI definition CRUD and pipeline batch loading.
 
-**Interface:** `listKpiDefinitions`, `getKpiDefinition`, `createKpiDefinition`, `updateKpiDefinition`, `deleteKpiDefinition`, `loadEligibleKpisForPipeline`.
+**Interface:** `listKpiDefinitions`, `getKpiDefinition`, `createKpiDefinition`, `updateKpiDefinition`, `deleteKpiDefinition`, `loadEligibleKpisForPipeline`, `findKpisWithLatestObservation`.
 
-**Variants/options:** Pipeline loading applies fetch eligibility and returns at most 10 KPIs by default.
+**Variants/options:** Pipeline loading applies fetch eligibility and returns at most 10 KPIs by default. `findKpisWithLatestObservation` is the shared KPI-plus-latest-observation query also used by the dashboard service (UNIT-0017; WO-0013 dedup).

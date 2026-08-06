@@ -1,19 +1,12 @@
 import type { PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import { findKpisWithLatestObservation } from "./kpis";
 import { serializeObservation } from "./observations";
 
 type DashboardClient = Pick<PrismaClient, "kpiDefinition" | "kpiObservation">;
 
 export async function getDashboardKpis(client: DashboardClient = prisma) {
-  const kpis = await client.kpiDefinition.findMany({
-    include: {
-      observations: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-      },
-    },
-    orderBy: { name: "asc" },
-  });
+  const kpis = await findKpisWithLatestObservation(client);
 
   return kpis.map((kpi) => {
     const latestObservation = kpi.observations[0]

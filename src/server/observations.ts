@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { applyConfidenceGate, normalizeObservationCandidate } from "../lib/pipeline";
 import { prisma } from "../lib/prisma";
+import { asNonEmptyString } from "../lib/strings";
 
 export type ObservationInput = {
   kpiId: string;
@@ -110,8 +111,4 @@ export function serializeObservation(observation: {
     explanation: observation.explanation ?? null,
     createdAt: observation.createdAt.toISOString(),
   };
-}
-
-function asNonEmptyString(value: unknown) {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
 }

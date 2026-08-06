@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { isKpiEligibleForIngestion } from "../lib/pipeline";
 import { prisma } from "../lib/prisma";
+import { asNonEmptyString } from "../lib/strings";
 
 export type KpiDefinitionInput = {
   name: string;
@@ -86,13 +87,10 @@ export async function deleteKpiDefinition(id: string, client: KpiClient = prisma
   await client.kpiDefinition.delete({ where: { id } });
 }
 
-export async function loadEligibleKpisForPipeline(
-  options: { now?: Date; limit?: number } = {},
-  client: KpiClient = prisma,
-) {
-  const now = options.now ?? new Date();
-  const limit = options.limit ?? 10;
-  const kpis = await client.kpiDefinition.findMany({
+// Shared query for every consumer that needs KPI definitions plus their latest
+// observation (dashboard read model and pipeline eligibility both use it).
+export function findKpisWithLatestObservation(client: KpiClient = prisma) {
+  return client.kpiDefinition.findMany({
     include: {
       observations: {
         orderBy: { createdAt: "desc" },
@@ -101,6 +99,15 @@ export async function loadEligibleKpisForPipeline(
     },
     orderBy: { name: "asc" },
   });
+}
+
+export async function loadEligibleKpisForPipeline(
+  options: { now?: Date; limit?: number } = {},
+  client: KpiClient = prisma,
+) {
+  const now = options.now ?? new Date();
+  const limit = options.limit ?? 10;
+  const kpis = await findKpisWithLatestObservation(client);
 
   return kpis
     .filter((kpi) =>
@@ -138,8 +145,4 @@ export function serializeKpiDefinition(kpi: {
     createdAt: kpi.createdAt.toISOString(),
     updatedAt: kpi.updatedAt.toISOString(),
   };
-}
-
-function asNonEmptyString(value: unknown) {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
 }

@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `getDashboardKpis`, `getKpiHistory`, and `calculateTargetProgress`.
 
-**Variants/options:** Target progress is omitted when target values are missing, invalid, or unit-mismatched.
+**Variants/options:** Target progress is omitted when target values are missing, invalid, or unit-mismatched. Latest-observation loading reuses `findKpisWithLatestObservation` from UNIT-0016 (WO-0013 dedup).

@@ -25,6 +25,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0012](UNIT-0012-content-hash.md) — Content hash — src/lib/pipeline/content-hash.ts
 - [UNIT-0013](UNIT-0013-observation-normalization.md) — Observation normalization — src/lib/pipeline/normalization.ts
 - [UNIT-0014](UNIT-0014-confidence-gate.md) — Confidence gate — src/lib/pipeline/confidence.ts
+- [UNIT-0045](UNIT-0045-string-helpers.md) — String helpers — src/lib/strings.ts
 
 ## Services / Validators / API clients
 

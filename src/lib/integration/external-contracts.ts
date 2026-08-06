@@ -1,3 +1,5 @@
+import { asNonEmptyString } from "../strings";
+
 export type OpenAiQueryGenerationContract = {
   queries: string[];
 };
@@ -51,10 +53,10 @@ export function parseOpenAiExtraction(input: unknown): OpenAiExtractionContract 
   }
 
   const confidence = parseConfidence(input.confidence);
-  const explanation = parseNonEmptyString(input.explanation);
+  const explanation = asNonEmptyString(input.explanation);
   const observedDate = parseDateString(input.observed_date);
-  const region = parseNonEmptyString(input.region);
-  const unit = parseNonEmptyString(input.unit);
+  const region = asNonEmptyString(input.region);
+  const unit = asNonEmptyString(input.unit);
   const valueNumeric = typeof input.value_numeric === "number" ? input.value_numeric : null;
 
   if (
@@ -89,32 +91,35 @@ export function parseTavilySearchResponse(input: unknown): TavilySearchContract 
       return [];
     }
 
-    const title = parseNonEmptyString(result.title);
+    const title = asNonEmptyString(result.title);
     const url = parseHttpUrl(result.url);
     if (!title || !url) {
       return [];
     }
 
-    const content = parseNonEmptyString(result.content);
+    const content = asNonEmptyString(result.content);
     return [{ title, url, ...(content ? { content } : {}) }];
   });
 
   return results.length ? { results } : null;
 }
 
-function parseConfidence(value: unknown) {
+// Single confidence contract for AI outputs: a finite number on the documented
+// 0-1 scale. Anything else (including 1-100 style values) is rejected, never
+// rescaled.
+export function parseConfidence(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1
     ? value
     : null;
 }
 
 function parseDateString(value: unknown) {
-  const text = parseNonEmptyString(value);
+  const text = asNonEmptyString(value);
   return text && /^\d{4}-\d{2}-\d{2}$/.test(text) ? text : null;
 }
 
 function parseHttpUrl(value: unknown) {
-  const text = parseNonEmptyString(value);
+  const text = asNonEmptyString(value);
   if (!text) {
     return null;
   }
@@ -125,10 +130,6 @@ function parseHttpUrl(value: unknown) {
   } catch {
     return null;
   }
-}
-
-function parseNonEmptyString(value: unknown) {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
