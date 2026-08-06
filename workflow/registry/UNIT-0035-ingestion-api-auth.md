@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `requireIngestionApiKey(request)`.
 
-**Variants/options:** Requires `INGESTION_API_KEY`; returns a clear configuration error when unset.
+**Variants/options:** Requires `INGESTION_API_KEY`; returns a clear configuration error when unset. Compares bearer tokens in constant time (`crypto.timingSafeEqual` over SHA-256 digests of both sides).

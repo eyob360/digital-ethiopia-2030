@@ -12,4 +12,4 @@ status: active
 
 **Interface:** `prisma`.
 
-**Variants/options:** Reuses a global client during development and defaults to the local Docker PostgreSQL URL when `DATABASE_URL` is unset.
+**Variants/options:** Reuses a global client during development. Requires `DATABASE_URL`; throws a clear configuration error at module load when it is unset (no fallback URL).
