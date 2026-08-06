@@ -17,15 +17,82 @@ describe("observation services", () => {
     expect(parseObservationInput({ value: 12 })).toBeNull();
   });
 
-  it("appends accepted observations without updating old rows", async () => {
+  it("appends accepted observations as new rows without overwriting existing rows", async () => {
+    // In-memory table backing a full mutating surface: if the implementation
+    // ever switches to update/upsert/delete semantics, the mock mutates the
+    // table exactly as a database would and the final-state assertions fail.
     const createdAt = new Date("2026-08-05T12:00:00.000Z");
-    const create = vi.fn(async ({ data }) => ({
-      id: `obs-${create.mock.calls.length}`,
-      rawDocumentId: null,
-      createdAt,
-      ...data,
-    }));
-    const client = { kpiObservation: { create } };
+    type Row = { id: string; kpiId: string; value: unknown; [key: string]: unknown };
+    const rows: Row[] = [];
+    const matches = (row: Row, where: Record<string, unknown> | undefined) =>
+      Object.entries(where ?? {}).every(([key, expected]) => row[key] === expected);
+
+    const create = vi.fn(async ({ data }: { data: Record<string, unknown> }) => {
+      const row = {
+        id: `obs-${rows.length + 1}`,
+        rawDocumentId: null,
+        createdAt,
+        ...data,
+      } as unknown as Row;
+      rows.push(row);
+      return row;
+    });
+    const update = vi.fn(async ({ where, data }: { where: Row; data: Record<string, unknown> }) => {
+      const row = rows.find((candidate) => matches(candidate, where));
+      if (row) {
+        Object.assign(row, data);
+      }
+      return row ?? null;
+    });
+    const updateMany = vi.fn(
+      async ({ where, data }: { where: Row; data: Record<string, unknown> }) => {
+        const matched = rows.filter((candidate) => matches(candidate, where));
+        for (const row of matched) {
+          Object.assign(row, data);
+        }
+        return { count: matched.length };
+      },
+    );
+    const upsert = vi.fn(
+      async ({
+        where,
+        update: updateData,
+        create: createData,
+      }: {
+        where: Row;
+        update: Record<string, unknown>;
+        create: Record<string, unknown>;
+      }) => {
+        const row = rows.find((candidate) => matches(candidate, where));
+        if (row) {
+          Object.assign(row, updateData);
+          return row;
+        }
+        return create({ data: createData });
+      },
+    );
+    const deleteOne = vi.fn(async ({ where }: { where: Row }) => {
+      const index = rows.findIndex((candidate) => matches(candidate, where));
+      return index === -1 ? null : rows.splice(index, 1)[0];
+    });
+    const deleteMany = vi.fn(async ({ where }: { where?: Row } = {}) => {
+      const matched = rows.filter((candidate) => matches(candidate, where));
+      for (const row of matched) {
+        rows.splice(rows.indexOf(row), 1);
+      }
+      return { count: matched.length };
+    });
+
+    const client = {
+      kpiObservation: {
+        create,
+        update,
+        updateMany,
+        upsert,
+        delete: deleteOne,
+        deleteMany,
+      },
+    };
     const input = {
       kpiId: "kpi-1",
       value: "12%",
@@ -35,18 +102,23 @@ describe("observation services", () => {
       aiConfidence: 0.9,
     };
 
-    await appendAcceptedObservation(input, client as never);
-    await appendAcceptedObservation({ ...input, value: "13%" }, client as never);
+    const first = await appendAcceptedObservation(input, client as never);
+    const second = await appendAcceptedObservation({ ...input, value: "13%" }, client as never);
 
-    expect(create).toHaveBeenCalledTimes(2);
-    expect(create).toHaveBeenNthCalledWith(
-      1,
-      expect.objectContaining({ data: expect.any(Object) }),
-    );
-    expect(create).toHaveBeenNthCalledWith(
-      2,
-      expect.objectContaining({ data: expect.any(Object) }),
-    );
+    expect(first).toMatchObject({ status: "inserted", observation: { value: "12" } });
+    expect(second).toMatchObject({ status: "inserted", observation: { value: "13" } });
+
+    // Both rows exist and the first row kept its original value: no overwrite.
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({ id: "obs-1", kpiId: "kpi-1", value: 12 });
+    expect(rows[1]).toMatchObject({ id: "obs-2", kpiId: "kpi-1", value: 13 });
+    expect(rows[0].id).not.toBe(rows[1].id);
+
+    expect(update).not.toHaveBeenCalled();
+    expect(updateMany).not.toHaveBeenCalled();
+    expect(upsert).not.toHaveBeenCalled();
+    expect(deleteOne).not.toHaveBeenCalled();
+    expect(deleteMany).not.toHaveBeenCalled();
   });
 
   it("sets review flags from confidence thresholds and rejects low-confidence rows", async () => {

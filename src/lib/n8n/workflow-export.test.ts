@@ -65,23 +65,37 @@ describe("n8n ingestion workflow export", () => {
       rule: { interval: [{ field: "hours", hoursInterval: 1 }] },
     });
 
+    // Structural map of every node that crosses the app ingestion boundary:
+    // exact endpoint expression per node, POST, and the ingestion key header.
+    const appEndpoints: Record<string, string> = {
+      "Start Pipeline Run": "={{$env.APP_BASE_URL}}/api/ingestion/pipeline/runs",
+      "Tavily Search via App Provider": "={{$env.APP_BASE_URL}}/api/ingestion/search",
+      "Filter Search URLs": "={{$env.APP_BASE_URL}}/api/ingestion/url-filter",
+      "Store Raw Document": "={{$env.APP_BASE_URL}}/api/ingestion/raw-documents",
+      "Store Observation": "={{$env.APP_BASE_URL}}/api/ingestion/observations",
+      "Complete Pipeline Run": "={{$env.APP_BASE_URL}}/api/ingestion/pipeline/runs",
+    };
+
     const appHttpNodes = workflow.nodes.filter(
       (node) =>
         node.type === "n8n-nodes-base.httpRequest" &&
-        JSON.stringify(node.parameters).includes("{{$env.APP_BASE_URL}}/api/ingestion/"),
+        typeof node.parameters?.url === "string" &&
+        node.parameters.url.startsWith("={{$env.APP_BASE_URL}}/"),
     );
 
-    expect(appHttpNodes.map((node) => node.name)).toEqual(
-      expect.arrayContaining([
-        "Start Pipeline Run",
-        "Tavily Search via App Provider",
-        "Filter Search URLs",
-        "Store Raw Document",
-        "Store Observation",
-        "Complete Pipeline Run",
-      ]),
-    );
-    expect(JSON.stringify(appHttpNodes)).toContain("INGESTION_API_KEY");
+    expect(appHttpNodes.map((node) => node.name).sort()).toEqual(Object.keys(appEndpoints).sort());
+
+    for (const node of appHttpNodes) {
+      expect(node.parameters?.url, node.name).toBe(appEndpoints[node.name]);
+      expect(node.parameters?.method, node.name).toBe("POST");
+
+      const headerParameters = node.parameters?.headerParameters as
+        { parameters?: Array<{ name: string; value: string }> } | undefined;
+      expect(headerParameters?.parameters, node.name).toContainEqual({
+        name: "Authorization",
+        value: "=Bearer {{$env.INGESTION_API_KEY}}",
+      });
+    }
   });
 
   it("applies node-level retries to transient external and database-backed calls", () => {
@@ -270,7 +284,14 @@ describe("n8n ingestion workflow export", () => {
 
   it("uses the app raw-document endpoint as the document budget authority", () => {
     expect(nodeNames()).not.toContain("Apply Document Budget");
-    expect(JSON.stringify(workflow.nodes)).not.toContain("documentsProcessed");
+    for (const node of workflow.nodes) {
+      for (const [parameterName, value] of Object.entries(node.parameters ?? {})) {
+        expect(
+          JSON.stringify(value),
+          `${node.name} parameter '${parameterName}' tracks a workflow-side budget`,
+        ).not.toContain("documentsProcessed");
+      }
+    }
     expect(outgoingNodeNames("Expand Priority URLs")).toEqual(["Has URL?"]);
     expect(outgoingNodeNames("Expand Filtered URLs")).toEqual(["Has URL?"]);
     expect(findNode("Store Raw Document").parameters?.jsonBody).toContain('"runId"');
@@ -289,7 +310,15 @@ describe("n8n ingestion workflow export", () => {
     expect(outgoingNodeNames("Has Query JSON?")).toEqual(
       expect.arrayContaining(["Tavily Search via App Provider", "Complete Pipeline Run"]),
     );
-    expect(JSON.stringify(workflow.nodes)).not.toContain("return []");
+
+    // No Code node may swallow a branch by returning an empty item list: every
+    // malformed path must stay routable to branch completion.
+    for (const node of workflow.nodes) {
+      const jsCode = node.parameters?.jsCode;
+      if (typeof jsCode === "string") {
+        expect(jsCode, `${node.name} drops items with 'return []'`).not.toContain("return []");
+      }
+    }
   });
 
   it("embeds generated external-contract validators with no hand-maintained copies", () => {

@@ -179,10 +179,7 @@ describe("pipeline services", () => {
   it("releases exactly when the final branch completes", async () => {
     const client = {
       pipelineLock: {
-        updateMany: vi
-          .fn()
-          .mockResolvedValueOnce({ count: 1 })
-          .mockResolvedValueOnce({ count: 1 }),
+        updateMany: vi.fn().mockResolvedValueOnce({ count: 1 }).mockResolvedValueOnce({ count: 1 }),
         upsert: vi
           .fn()
           .mockResolvedValueOnce(
