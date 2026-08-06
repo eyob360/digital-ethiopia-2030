@@ -11,6 +11,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0027](UNIT-0027-category-filter.md) — Category filter — src/components/dashboard/category-filter.tsx
 - [UNIT-0031](UNIT-0031-kpi-admin-workspace.md) — KPI admin workspace — src/components/forms/kpi-admin-workspace.tsx
 - [UNIT-0032](UNIT-0032-pipeline-controls.md) — Pipeline controls — src/components/pipeline/pipeline-controls.tsx
+- [UNIT-0044](UNIT-0044-url-filter-config-workspace.md) — URL filter config workspace — src/components/forms/url-filter-config-workspace.tsx
 
 <!-- - [UNIT-0001](UNIT-0001-data-table.md) — DataTable — src/components/DataTable.tsx -->
 
@@ -40,6 +41,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0037](UNIT-0037-tavily-search-provider.md) — Tavily search provider — src/server/search/tavily.ts
 - [UNIT-0039](UNIT-0039-n8n-ingestion-workflow.md) — n8n ingestion workflow — n8n/workflows/digital-ethiopia-ingestion.json
 - [UNIT-0040](UNIT-0040-external-contract-validators.md) — External contract validators — src/lib/integration/external-contracts.ts
+- [UNIT-0041](UNIT-0041-url-filter-config-service.md) — URL filter config service — src/server/url-filter-config.ts
 
 ## Endpoints
 
@@ -49,6 +51,7 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0021](UNIT-0021-dashboard-kpi-api.md) — Dashboard KPI API — src/app/api/dashboard/kpis/route.ts
 - [UNIT-0022](UNIT-0022-pipeline-api.md) — Pipeline API — src/app/api/pipeline
 - [UNIT-0038](UNIT-0038-ingestion-api.md) — Ingestion API — src/app/api/ingestion
+- [UNIT-0042](UNIT-0042-url-filter-config-api.md) — URL filter config API — src/app/api/url-filter-config/route.ts
 
 ## Pages
 
@@ -58,3 +61,4 @@ Index only — one line per reusable unit, grouped by kind; lists only what exis
 - [UNIT-0030](UNIT-0030-pipeline-page.md) — Pipeline page — src/app/pipeline/page.tsx
 - [UNIT-0033](UNIT-0033-login-page.md) — Login page — src/app/login/page.tsx
 - [UNIT-0034](UNIT-0034-account-page.md) — Account page — src/app/account/page.tsx
+- [UNIT-0043](UNIT-0043-url-filter-admin-page.md) — URL filter admin page — src/app/admin/url-filter/page.tsx

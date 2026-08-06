@@ -1,6 +1,7 @@
 import { filterCandidateUrls } from "@/lib/pipeline";
 import { requireIngestionApiKey } from "@/server/api/ingestion-auth";
 import { jsonError, jsonOk, readJsonBody } from "@/server/api/responses";
+import { getUrlFilterConfig } from "@/server/url-filter-config";
 
 export async function POST(request: Request) {
   const auth = requireIngestionApiKey(request);
@@ -15,11 +16,18 @@ export async function POST(request: Request) {
 
   const record = body as Record<string, unknown>;
   const urls = record.urls as string[];
+  const operatorConfig = await getUrlFilterConfig();
 
   return jsonOk({
     urls: filterCandidateUrls(urls, {
-      allowedDomains: parseStringArray(record.allowedDomains),
-      blockedDomains: parseStringArray(record.blockedDomains),
+      allowedDomains: [
+        ...operatorConfig.allowedDomains,
+        ...(parseStringArray(record.allowedDomains) ?? []),
+      ],
+      blockedDomains: [
+        ...operatorConfig.blockedDomains,
+        ...(parseStringArray(record.blockedDomains) ?? []),
+      ],
       maxUrls:
         typeof record.maxUrls === "number" && record.maxUrls > 0
           ? Math.floor(record.maxUrls)

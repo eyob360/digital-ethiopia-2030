@@ -14,6 +14,7 @@ const viewerLinks = [
 
 const operatorLinks = [
   { href: "/admin/kpis", label: "KPI Admin" },
+  { href: "/admin/url-filter", label: "URL Filtering" },
   { href: "/pipeline", label: "Pipeline" },
 ];
 

@@ -1,5 +1,7 @@
 export type UrlFilterConfig = {
+  /** Operator override: domains that always pass, winning over every block rule. */
   allowedDomains?: string[];
+  /** Operator override: domains blocked in addition to the default block patterns. */
   blockedDomains?: string[];
   maxUrls?: number;
 };
@@ -11,43 +13,79 @@ export type FilteredUrl = {
 
 const defaultMaxUrls = 5;
 
-const defaultBlockedDomains = [
-  "bit.ly",
-  "facebook.com",
-  "drive.google.com",
-  "dropbox.com",
-  "google.com",
-  "instagram.com",
-  "linkedin.com",
-  "medium.com",
-  "reddit.com",
-  "t.co",
-  "tiktok.com",
-  "twitter.com",
-  "x.com",
-  "youtube.com",
-];
+/**
+ * Default block patterns per BRD-0002.R4.AC5, grouped by category (policy: D-0019
+ * blocklist-with-default-allow — every domain not matching a block rule passes,
+ * which is how AC6's open-ended source categories get through without enumeration).
+ */
+export const defaultBlockedDomainCategories: Readonly<Record<string, readonly string[]>> = {
+  "social-media-aggregators": [
+    "facebook.com",
+    "flipboard.com",
+    "instagram.com",
+    "linkedin.com",
+    "medium.com",
+    "pinterest.com",
+    "snapchat.com",
+    "t.me",
+    "telegram.me",
+    "threads.net",
+    "tiktok.com",
+    "twitter.com",
+    "x.com",
+    "youtube.com",
+  ],
+  "search-result-pages": [
+    "baidu.com",
+    "bing.com",
+    "duckduckgo.com",
+    "ecosia.org",
+    "google.com",
+    "search.brave.com",
+    "search.yahoo.com",
+    "startpage.com",
+    "yandex.com",
+  ],
+  "url-shorteners": [
+    "bit.ly",
+    "buff.ly",
+    "cutt.ly",
+    "goo.gl",
+    "is.gd",
+    "lnkd.in",
+    "ow.ly",
+    "rebrand.ly",
+    "t.co",
+    "tinyurl.com",
+  ],
+  "file-sharing": [
+    "4shared.com",
+    "box.com",
+    "drive.google.com",
+    "dropbox.com",
+    "mediafire.com",
+    "mega.nz",
+    "scribd.com",
+    "slideshare.net",
+    "wetransfer.com",
+  ],
+  "login-only-sites": [
+    "accounts.google.com",
+    "auth0.com",
+    "login.live.com",
+    "login.microsoftonline.com",
+    "okta.com",
+  ],
+  "low-signal-forums": ["4chan.org", "quora.com", "reddit.com", "tapatalk.com"],
+};
 
-const defaultAllowedDomains = [
-  "afdb.org",
-  "capitalethiopia.com",
-  "digitalethiopia.tech",
-  "ena.et",
-  "ethiotelecom.et",
-  "gcs.gov.et",
-  "id.gov.et",
-  "mofed.gov.et",
-  "nbebank.com",
-  "statsethiopia.gov.et",
-  "worldbank.org",
-];
+export const defaultBlockedDomains: readonly string[] = Object.values(
+  defaultBlockedDomainCategories,
+).flat();
 
 export function filterCandidateUrls(candidateUrls: string[], config: UrlFilterConfig = {}) {
   const maxUrls = config.maxUrls ?? defaultMaxUrls;
-  const allowedDomains = normalizeDomains([
-    ...(config.allowedDomains ?? []),
-    ...defaultAllowedDomains,
-  ]);
+  const allowedDomains = normalizeDomains(config.allowedDomains ?? []);
   const blockedDomains = normalizeDomains([
     ...(config.blockedDomains ?? []),
     ...defaultBlockedDomains,
@@ -67,7 +105,8 @@ export function filterCandidateUrls(candidateUrls: string[], config: UrlFilterCo
     }
 
     const hostname = normalizeHostname(parsedUrl.hostname);
-    if (matchesDomain(hostname, blockedDomains) || !matchesDomain(hostname, allowedDomains)) {
+    const isAllowed = matchesDomain(hostname, allowedDomains);
+    if (!isAllowed && matchesDomain(hostname, blockedDomains)) {
       continue;
     }
 

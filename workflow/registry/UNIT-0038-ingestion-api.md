@@ -12,4 +12,4 @@ status: active
 
 **Interface:** Routes under `/api/ingestion/*`.
 
-**Variants/options:** Protected by `INGESTION_API_KEY` bearer auth instead of browser session auth.
+**Variants/options:** Protected by `INGESTION_API_KEY` bearer auth instead of browser session auth. `/url-filter` reads the stored operator override lists (UNIT-0041) on every request, so list changes apply without redeploy.

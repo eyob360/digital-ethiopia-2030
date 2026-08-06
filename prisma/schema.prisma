@@ -116,6 +116,15 @@ model KpiObservation {
   @@map("kpi_observations")
 }
 
+model UrlFilterConfig {
+  id             String   @id @default("default")
+  blockedDomains String[] @default([]) @map("blocked_domains")
+  allowedDomains String[] @default([]) @map("allowed_domains")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("url_filter_configs")
+}
+
 model PipelineLock {
   name                PipelineLockName @id
   locked              Boolean          @default(false)

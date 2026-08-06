@@ -4,8 +4,8 @@ title: Operator-configurable URL filtering
 implements: [BRD-0002.R4]
 blueprint: BP-0001
 depends-on: none
-units-touched: []
-status: in-progress
+units-touched: [UNIT-0011, UNIT-0024, UNIT-0038, UNIT-0041, UNIT-0042, UNIT-0043, UNIT-0044]
+status: done
 ---
 
 # WO-0011: Operator-configurable URL filtering
@@ -36,6 +36,15 @@ status: in-progress
 ## Implementation notes
 - Cite D-0008 (category-level filtering intent) and D-0019 (mechanism: blocklist-with-default-allow, DB + admin UI) — D-0019 refines D-0008.
 - Touch points: UNIT-0011 (url-filter), UNIT-0038 (ingestion API caller); if DB-backed, schema changes go through a Prisma migration and likely an admin UI element (registry search first).
+
+## Implementation record (2026-08-06)
+
+- **Policy (D-0019):** `filterCandidateUrls` is now blocklist-with-default-allow. Default blocked patterns grouped by AC5 category in `defaultBlockedDomainCategories` (social/media aggregators, search-result pages, URL shorteners, file-sharing, login-only sites, low-signal forums); the hardcoded allowlist is gone, so AC6's open-ended categories pass by default. Operator `allowedDomains` wins over every block rule, including defaults (mechanism for removing a default block).
+- **Storage:** Prisma migration `0004_url_filter_config` adds singleton table `url_filter_configs` (`blocked_domains`/`allowed_domains` TEXT[]); additive only. Absent row = empty overrides, defaults apply.
+- **Run-time wiring:** `POST /api/ingestion/url-filter` loads the stored config via `getUrlFilterConfig()` on every request and merges it with any request-supplied lists (request contract with n8n unchanged — no workflow JSON change needed).
+- **Operator surface:** `GET`/`PUT /api/url-filter-config` (OPERATOR role) and `/admin/url-filter` page with `UrlFilterConfigWorkspace`; non-operators are redirected as on the KPI admin page. Nav link added to the app shell.
+- **Registry branches:** extended UNIT-0011 (url-filter policy + exports) and UNIT-0038 (ingestion url-filter route reads DB config); reused UNIT-0005, UNIT-0015, UNIT-0023/responses, UNIT-0024 (app shell, nav link added), UNIT-0001 (Button), and the existing form field classes; created UNIT-0041 (config service), UNIT-0042 (config API), UNIT-0043 (admin page), UNIT-0044 (workspace component) — no existing unit covered DB-backed filter config or its operator surface, and composing KPI-admin units would have meant near-duplicate forks.
+- **Tests:** unit tests for default-allow (AC6 examples), per-category default blocking (AC5), operator additions, allow-wins-over-block (incl. subdomain allow); service tests for parse/normalize + read/upsert; route-level tests proving the ingestion API applies stored config per request. Live DB round-trip smoke against docker Postgres passed (config row created, read back, restored).
 
 ## Testing plan
 - `npm run lint`, `npm test`, `npm run build` (testing policy in `../brds/OVERVIEW.md`).
