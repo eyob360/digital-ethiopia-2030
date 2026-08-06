@@ -2,7 +2,7 @@
 
 Index only — one line per item. Details and status live in each item's frontmatter. Keep every line current. When a BRD is fully validated, move its lines (and its blueprints/work orders) to `ARCHIVE.md` — this file holds active work only.
 
-Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
+Last drift audit: 51191bc (2026-08-06, DRIFT-0003)
 
 ## Setup
 
@@ -25,8 +25,8 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 - [WO-0010](work-orders/WO-0010-fallback-search-reachability-fix.md) — Fallback search reachability for rejected observations (BRD-0002, BP-0001) — status: validated
 - [WO-0011](work-orders/WO-0011-configurable-url-filtering.md) — Operator-configurable URL filtering (BRD-0002, BP-0001) — status: validated
 - [WO-0012](work-orders/WO-0012-nfr-coverage-simplicity-and-separation.md) — NFR coverage: operational simplicity and separation of concerns (BRD-0001, BRD-0003, BP-0001) — status: validated
-- [WO-0013](work-orders/WO-0013-validation-unification-and-dedup.md) — Validation-source unification and duplication cleanup (maintenance) — status: ready
-- [WO-0014](work-orders/WO-0014-config-hardening-and-test-hygiene.md) — Config fail-loud, timing-safe key compare, and test hygiene (maintenance) — status: ready
+- [WO-0013](work-orders/WO-0013-validation-unification-and-dedup.md) — Validation-source unification and duplication cleanup (maintenance) — status: validated (on branch `wo-0013-validation-unification-and-dedup`; merge held for user review)
+- [WO-0014](work-orders/WO-0014-config-hardening-and-test-hygiene.md) — Config fail-loud, timing-safe key compare, and test hygiene (maintenance) — status: validated (on branch `wo-0014-config-hardening-and-test-hygiene`, stacked on WO-0013; merge held for user review)
 
 ## Blocked / Needs user input
 
