@@ -31,15 +31,41 @@ describe("requireIngestionApiKey", () => {
       ),
     ).toEqual({ ok: true });
 
-    const rejected = requireIngestionApiKey(
-      new Request("http://localhost/api/ingestion/kpis", {
-        headers: { authorization: "Bearer wrong" },
-      }),
-    );
+    const wrongTokens = [
+      "local-kez", // same length, wrong content
+      "wrong", // shorter than the configured key
+      "local-key-with-a-much-longer-suffix", // longer than the configured key
+    ];
 
-    expect(rejected.ok).toBe(false);
-    if (!rejected.ok) {
-      expect(rejected.response.status).toBe(401);
+    for (const token of wrongTokens) {
+      const rejected = requireIngestionApiKey(
+        new Request("http://localhost/api/ingestion/kpis", {
+          headers: { authorization: `Bearer ${token}` },
+        }),
+      );
+
+      expect(rejected.ok, `token ${JSON.stringify(token)}`).toBe(false);
+      if (!rejected.ok) {
+        expect(rejected.response.status, `token ${JSON.stringify(token)}`).toBe(401);
+      }
+    }
+
+    process.env.INGESTION_API_KEY = previousKey;
+  });
+
+  it("rejects requests without a bearer authorization header", () => {
+    const previousKey = process.env.INGESTION_API_KEY;
+    process.env.INGESTION_API_KEY = "local-key";
+
+    for (const headers of [undefined, { authorization: "Basic local-key" }] as const) {
+      const rejected = requireIngestionApiKey(
+        new Request("http://localhost/api/ingestion/kpis", headers ? { headers } : undefined),
+      );
+
+      expect(rejected.ok).toBe(false);
+      if (!rejected.ok) {
+        expect(rejected.response.status).toBe(401);
+      }
     }
 
     process.env.INGESTION_API_KEY = previousKey;
