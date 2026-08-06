@@ -1,6 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { createContentHash } from "../lib/pipeline";
 import { prisma } from "../lib/prisma";
+import { asNonEmptyString } from "../lib/strings";
 import { reservePipelineDocumentSlot } from "./pipeline";
 
 type RawDocumentClient = Pick<PrismaClient, "pipelineLock" | "rawDocument">;
@@ -39,16 +40,9 @@ export async function storeRawDocumentIfNew(
   input: RawDocumentInput,
   client: RawDocumentClient = prisma,
 ) {
-  const slot = await reservePipelineDocumentSlot(client);
-  if (!slot.reserved) {
-    return {
-      status: "budget_exhausted" as const,
-      rawDocument: null,
-      contentHash: null,
-      ...input.workflowContext,
-    };
-  }
-
+  // Hash and duplicate-check before touching the budget so duplicates never
+  // consume a slot (WO-0013). The slot is still reserved before the insert, so
+  // a failed create leaves the budget consumed (fail-closed, per WO-0009).
   const contentHash = createContentHash(input.rawText);
   const existingDocument = await client.rawDocument.findUnique({
     where: { contentHash },
@@ -59,6 +53,16 @@ export async function storeRawDocumentIfNew(
       status: "duplicate" as const,
       rawDocument: serializeRawDocument(existingDocument),
       contentHash,
+      ...input.workflowContext,
+    };
+  }
+
+  const slot = await reservePipelineDocumentSlot(client);
+  if (!slot.reserved) {
+    return {
+      status: "budget_exhausted" as const,
+      rawDocument: null,
+      contentHash: null,
       ...input.workflowContext,
     };
   }
@@ -93,10 +97,6 @@ export function serializeRawDocument(rawDocument: {
     contentHash: rawDocument.contentHash,
     createdAt: rawDocument.createdAt.toISOString(),
   };
-}
-
-function asNonEmptyString(value: unknown) {
-  return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
 function parseWorkflowContext(record: Record<string, unknown>): RawDocumentWorkflowContext {

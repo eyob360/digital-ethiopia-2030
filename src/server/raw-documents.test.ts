@@ -66,7 +66,9 @@ describe("raw document ingestion service", () => {
         },
       },
       pipelineLock: {
-        updateMany: async () => ({ count: 1 }),
+        updateMany: async () => {
+          throw new Error("duplicate raw documents must not reserve a budget slot");
+        },
       },
     };
 
@@ -82,12 +84,10 @@ describe("raw document ingestion service", () => {
     expect(result.rawDocument.id).toBe("raw-existing");
   });
 
-  it("returns budget exhausted before hashing or storing when the run cap is reached", async () => {
+  it("returns budget exhausted without storing when the run cap is reached", async () => {
     const client = {
       rawDocument: {
-        findUnique: async () => {
-          throw new Error("budget-exhausted documents should not be hashed or looked up");
-        },
+        findUnique: async () => null,
         create: async () => {
           throw new Error("budget-exhausted documents should not be created");
         },
@@ -107,6 +107,44 @@ describe("raw document ingestion service", () => {
       rawDocument: null,
       contentHash: null,
     });
+  });
+
+  it("consumes exactly one budget slot when identical content is stored twice", async () => {
+    const documentsByHash = new Map<string, Record<string, unknown>>();
+    let reservedSlots = 0;
+    const client = {
+      rawDocument: {
+        findUnique: async ({ where }: { where: { contentHash: string } }) =>
+          documentsByHash.get(where.contentHash) ?? null,
+        create: async ({
+          data,
+        }: {
+          data: { sourceUrl: string; rawText: string; contentHash: string };
+        }) => {
+          const rawDocument = {
+            id: `raw-${documentsByHash.size + 1}`,
+            createdAt: new Date("2026-08-06T00:00:00Z"),
+            ...data,
+          };
+          documentsByHash.set(data.contentHash, rawDocument);
+          return rawDocument;
+        },
+      },
+      pipelineLock: {
+        updateMany: async () => {
+          reservedSlots += 1;
+          return { count: 1 };
+        },
+      },
+    };
+
+    const input = { rawText: "Same content", sourceUrl: "https://example.com/same" };
+    const first = await storeRawDocumentIfNew(input, client as never);
+    const second = await storeRawDocumentIfNew(input, client as never);
+
+    expect(first.status).toBe("stored");
+    expect(second.status).toBe("duplicate");
+    expect(reservedSlots).toBe(1);
   });
 
   it("parses required raw document input fields", () => {
