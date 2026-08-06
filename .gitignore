@@ -3,6 +3,8 @@ node_modules
 next-env.d.ts
 out
 coverage
+test-results
+playwright-report
 src/generated/prisma
 .env
 .env*.local
