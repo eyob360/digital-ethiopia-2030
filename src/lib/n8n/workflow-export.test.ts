@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { buildValidatorNodeCode, validatorNodeNames } from "./validator-codegen.mjs";
 
 type WorkflowNode = {
   name: string;
@@ -289,6 +290,24 @@ describe("n8n ingestion workflow export", () => {
       expect.arrayContaining(["Tavily Search via App Provider", "Complete Pipeline Run"]),
     );
     expect(JSON.stringify(workflow.nodes)).not.toContain("return []");
+  });
+
+  it("embeds generated external-contract validators with no hand-maintained copies", () => {
+    // WO-0013: the Validate * JSON Code nodes are generated from the canonical
+    // validators in src/lib/integration/external-contracts.ts (UNIT-0040).
+    // Byte-equality here means the workflow JSON cannot drift from the strict
+    // TypeScript rules; regenerate with `npm run n8n:generate`.
+    expect(validatorNodeNames).toEqual([
+      "Validate Relevance JSON",
+      "Validate Extraction JSON",
+      "Validate Query JSON",
+    ]);
+
+    for (const nodeName of validatorNodeNames) {
+      expect(findNode(nodeName).parameters?.jsCode, nodeName).toBe(
+        buildValidatorNodeCode(nodeName),
+      );
+    }
   });
 
   it("documents strict mocked AI/search response shapes", () => {

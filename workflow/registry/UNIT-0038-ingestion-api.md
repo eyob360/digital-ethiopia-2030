@@ -12,4 +12,4 @@ status: active
 
 **Interface:** Routes under `/api/ingestion/*`.
 
-**Variants/options:** Protected by `INGESTION_API_KEY` bearer auth instead of browser session auth. `/url-filter` reads the stored operator override lists (UNIT-0041) on every request, so list changes apply without redeploy.
+**Variants/options:** Protected by `INGESTION_API_KEY` bearer auth instead of browser session auth. `/url-filter` reads the stored operator override lists (UNIT-0041) on every request, so list changes apply without redeploy. `/pipeline/runs` shares its implementation with the operator route via `handlePipelineRunAction` (UNIT-0023); `/search` validates queries and Tavily responses with the UNIT-0040 contracts (WO-0013).

@@ -3,7 +3,7 @@
 This folder contains the versioned n8n workflow source for WO-0006.
 
 ## Files
-- `workflows/digital-ethiopia-ingestion.json` — importable n8n workflow export.
+- `workflows/digital-ethiopia-ingestion.json` — importable n8n workflow export. The `Validate Relevance JSON`, `Validate Extraction JSON`, and `Validate Query JSON` Code nodes are generated from the canonical contract validators in `src/lib/integration/external-contracts.ts`; never edit their `jsCode` by hand — run `npm run n8n:generate` after changing the validators (`src/lib/n8n/workflow-export.test.ts` enforces byte-equality).
 - `mocks/openai-query-generation.json` — valid query-generation response shape.
 - `mocks/openai-relevance.json` — valid relevance-classification response shape.
 - `mocks/openai-extraction.json` — valid extraction response shape.
@@ -34,7 +34,7 @@ HTTP fetches, OpenAI calls, and app/database-backed ingestion API calls use n8n 
 - The pipeline runs hourly.
 - The app batch loader caps KPI definitions at 10 per run.
 - Candidate URL filtering caps source URLs at 5 per KPI.
-- `/api/ingestion/raw-documents` is the authoritative cross-lineage counter and refuses documents after 10 stored or duplicate-checked documents in an active run.
+- `/api/ingestion/raw-documents` is the authoritative cross-lineage counter and refuses new documents after 10 stored documents in an active run. Duplicates are detected by content hash before the budget check and do not consume budget slots.
 - The workflow has no vector database, queue, warehouse, real-time stream, paid data API beyond configured providers, custom ML model, multilingual processing, or advanced entity resolution.
 
 ## Crash Recovery

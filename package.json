@@ -12,6 +12,7 @@
     "db:reset": "prisma migrate reset",
     "start": "next start",
     "lint": "eslint .",
+    "n8n:generate": "node src/lib/n8n/validator-codegen.mjs",
     "format": "prettier --check README.md \"src/**/*.{ts,tsx,css}\" \"prisma/**/*.{js,ts,mjs}\" \"*.{js,ts,mjs,json,yml}\"",
     "format:write": "prettier --write README.md \"src/**/*.{ts,tsx,css}\" \"prisma/**/*.{js,ts,mjs}\" \"*.{js,ts,mjs,json,yml}\"",
     "test": "vitest run"
