@@ -24,7 +24,7 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 - [WO-0009](work-orders/WO-0009-pipeline-lock-and-budget-fix.md) — Pipeline lock lifecycle and document budget fix (BRD-0001, BRD-0002, BP-0001) — status: validated
 - [WO-0010](work-orders/WO-0010-fallback-search-reachability-fix.md) — Fallback search reachability for rejected observations (BRD-0002, BP-0001) — status: validated
 - [WO-0011](work-orders/WO-0011-configurable-url-filtering.md) — Operator-configurable URL filtering (BRD-0002, BP-0001) — status: validated
-- [WO-0012](work-orders/WO-0012-nfr-coverage-simplicity-and-separation.md) — NFR coverage: operational simplicity and separation of concerns (BRD-0001, BRD-0003, BP-0001) — status: done
+- [WO-0012](work-orders/WO-0012-nfr-coverage-simplicity-and-separation.md) — NFR coverage: operational simplicity and separation of concerns (BRD-0001, BRD-0003, BP-0001) — status: validated
 - [WO-0013](work-orders/WO-0013-validation-unification-and-dedup.md) — Validation-source unification and duplication cleanup (maintenance) — status: ready
 - [WO-0014](work-orders/WO-0014-config-hardening-and-test-hygiene.md) — Config fail-loud, timing-safe key compare, and test hygiene (maintenance) — status: ready
 
