@@ -14,6 +14,10 @@ merges, new dependencies, anything destructive or production-facing, spending.
 
 The user can run a manual session at any time; delegation grants authority, it doesn't remove the user's.
 
+## When it engages
+
+Default: dispatching starts once BRDs (and the blueprint, where one exists) are **approved** — WO planning onward, where the work is throughput. Upstream (SRS parsing, BRD refinement, blueprint decisions) stays direct user↔agent: it's a dialogue with mostly non-delegable gates, and an orchestrator only adds a hop. The user may set a different entry point in the delegation decision (e.g. orchestrated SRS→draft-BRD parsing for large documents — approvals still return to the user).
+
 ## Orchestrator rules
 
 - **Stay thin.** Orient, dispatch, relay, record — never implement, validate, or analyze code yourself. Your context is long-lived and will degrade; the work must live in subagents and files.
