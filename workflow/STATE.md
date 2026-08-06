@@ -22,12 +22,14 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 - [WO-0004](work-orders/WO-0004-dashboard-api.md) — Dashboard and admin APIs (BRD-0001, BRD-0002, BRD-0003, BP-0001) — status: validated
 - [WO-0005](work-orders/WO-0005-dashboard-ui.md) — Dashboard UI (BRD-0001, BRD-0003, BP-0001) — status: done
 - [WO-0009](work-orders/WO-0009-pipeline-lock-and-budget-fix.md) — Pipeline lock lifecycle and document budget fix (BRD-0001, BRD-0002, BP-0001) — status: validated
-- [WO-0010](work-orders/WO-0010-fallback-search-reachability-fix.md) — Fallback search reachability for rejected observations (BRD-0002, BP-0001) — status: done (reworked after VAL-WO-0010; needs fresh validation)
+- [WO-0010](work-orders/WO-0010-fallback-search-reachability-fix.md) — Fallback search reachability for rejected observations (BRD-0002, BP-0001) — status: in-progress (VAL-WO-0010 round 2 fail: n8n IF nodes never evaluate legacy-format conditions — all 12 misroute to true; see report)
 - [WO-0011](work-orders/WO-0011-configurable-url-filtering.md) — Operator-configurable URL filtering (BRD-0002, BP-0001) — status: ready
 - [WO-0012](work-orders/WO-0012-nfr-coverage-simplicity-and-separation.md) — NFR coverage: operational simplicity and separation of concerns (BRD-0001, BRD-0003, BP-0001) — status: ready
 - [WO-0013](work-orders/WO-0013-validation-unification-and-dedup.md) — Validation-source unification and duplication cleanup (maintenance) — status: ready
 - [WO-0014](work-orders/WO-0014-config-hardening-and-test-hygiene.md) — Config fail-loud, timing-safe key compare, and test hygiene (maintenance) — status: ready
 
 ## Blocked / Needs user input
+
+- VAL-WO-0010 (round 2, 2026-08-06) found a pre-existing runtime defect on `main`: all n8n IF nodes use legacy condition params with `typeVersion: 2` and route every item to true. This undermines runtime assumptions behind the validated statuses of WO-0006 (archived) and WO-0009 (`Run Started?` always true defeats the pipeline lock's mutual exclusion). User to decide: roll those statuses back for review, or scope the IF-format fix into the WO-0010 rework? Details in `validation/VAL-WO-0010.md`.
 
 <!-- WO-0005/WO-0011/WO-0012 blockers resolved 2026-08-05 by D-0018, D-0019, D-0020 (user-delegated). WO-0005 awaits fresh-session re-validation with the D-0018 tooling. -->
