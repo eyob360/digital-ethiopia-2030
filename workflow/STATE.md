@@ -20,7 +20,7 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 - [WO-0002](work-orders/WO-0002-data-auth-foundation.md) — Data and auth foundation (BRD-0001, BRD-0003, BP-0001) — status: validated
 - [WO-0003](work-orders/WO-0003-deterministic-pipeline-rules.md) — Deterministic pipeline rules (BRD-0001, BRD-0002, BP-0001) — status: validated
 - [WO-0004](work-orders/WO-0004-dashboard-api.md) — Dashboard and admin APIs (BRD-0001, BRD-0002, BRD-0003, BP-0001) — status: validated
-- [WO-0005](work-orders/WO-0005-dashboard-ui.md) — Dashboard UI (BRD-0001, BRD-0003, BP-0001) — status: done
+- [WO-0005](work-orders/WO-0005-dashboard-ui.md) — Dashboard UI (BRD-0001, BRD-0003, BP-0001) — status: in-progress (re-validation 2026-08-06 failed: success-badge contrast 3.66:1 < WCAG 2.2 AA 4.5:1; all else passed — see VAL-WO-0005)
 - [WO-0009](work-orders/WO-0009-pipeline-lock-and-budget-fix.md) — Pipeline lock lifecycle and document budget fix (BRD-0001, BRD-0002, BP-0001) — status: validated
 - [WO-0010](work-orders/WO-0010-fallback-search-reachability-fix.md) — Fallback search reachability for rejected observations (BRD-0002, BP-0001) — status: validated
 - [WO-0011](work-orders/WO-0011-configurable-url-filtering.md) — Operator-configurable URL filtering (BRD-0002, BP-0001) — status: validated
@@ -34,4 +34,4 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 
 <!-- IF-node defect question resolved 2026-08-06 by D-0021 (user-delegated): IF fix scoped into WO-0010 rework. VAL-WO-0010 round 3 (2026-08-06) produced the required executed evidence, and round 4 (2026-08-06, at b8adf90) re-confirmed it: Run Started? lock gate and dedup/relevance/priority branching all hold with the migrated shapes — the WO-0006/WO-0009 conditional stands are CONFIRMED, no rollback. WO-0010's round-3 finding (once-per-KPI fallback guard defeated by store-endpoint error items — unbounded fallback loop) was fixed at b8adf90 and validated in round 4 with executed evidence (store-error lanes terminate at Complete Pipeline Run exactly once, valid runId/branchKey, no re-arm on any lineage); WO-0010 is validated. -->
 
-<!-- WO-0005/WO-0011/WO-0012 blockers resolved 2026-08-05 by D-0018, D-0019, D-0020 (user-delegated). WO-0005 awaits fresh-session re-validation with the D-0018 tooling. -->
+<!-- WO-0005/WO-0011/WO-0012 blockers resolved 2026-08-05 by D-0018, D-0019, D-0020 (user-delegated). WO-0005 was re-validated 2026-08-06 with the D-0018 tooling (Playwright + axe harness now committed under e2e/): functional and keyboard/focus criteria pass on executed evidence; axe found one WCAG 2.2 AA contrast failure (success StatusBadge, 3.66:1) — fix is a small single-component change, then re-run `npx playwright test`. -->
