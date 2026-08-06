@@ -34,6 +34,13 @@ A priority-source URL that yields a *rejected* observation candidate terminates 
 - "Valid observation" per BRD-0002 means one that passes normalization and the confidence gate — a low-confidence rejection is precisely the "did not yield a valid observation" case AC3 exists for.
 - Coordinate with WO-0009's completion changes — both edit the workflow JSON; do not run these WOs in parallel sessions.
 
+## Rework scope (round 3, per VAL-WO-0010 round 2 + D-0021)
+
+- Migrate **all 12** IF nodes in `n8n/workflows/digital-ethiopia-ingestion.json` to the proper typeVersion-2 filter format (VAL-WO-0010 Experiment D's parameter shape, proven on pinned n8n 2.33.0) — legacy `conditions: {boolean|string: [...]}` shapes never evaluate and route everything to true (Failure 1).
+- Fix the stale back-reference in `Extract Readable Text`: it must not read `$('Expand Priority URLs').item.json` on the fallback path (Failure 2) or on the no-priority-URLs lineage where that node never ran (Failure 3). Reference a node valid on both paths (e.g. `$('Has URL?').item.json` once IFs pass items through) or split extraction per path.
+- Extend export tests: assert every IF node's condition format matches its declared typeVersion (static guard for Failure 1's defect class), plus the rejected-candidate → fallback routing assertions already in scope.
+- Validation round 3 must additionally re-verify with executed evidence the IF-dependent behaviors WO-0006/WO-0009 relied on (`Run Started?` lock gate; dedup/relevance/priority branching) — see D-0021.
+
 ## Testing plan
 - `npm run lint`, `npm test`, `npm run build` (testing policy in `../brds/OVERVIEW.md`).
 - Workflow export assertions: rejected-candidate output routes to the fallback path, not completion; fallback still capped at once per KPI.

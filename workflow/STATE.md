@@ -30,6 +30,6 @@ Last drift audit: ff0db3e (2026-08-05, DRIFT-0002)
 
 ## Blocked / Needs user input
 
-- VAL-WO-0010 (round 2, 2026-08-06) found a pre-existing runtime defect on `main`: all n8n IF nodes use legacy condition params with `typeVersion: 2` and route every item to true. This undermines runtime assumptions behind the validated statuses of WO-0006 (archived) and WO-0009 (`Run Started?` always true defeats the pipeline lock's mutual exclusion). User to decide: roll those statuses back for review, or scope the IF-format fix into the WO-0010 rework? Details in `validation/VAL-WO-0010.md`.
+<!-- IF-node defect question resolved 2026-08-06 by D-0021 (user-delegated): IF fix scoped into WO-0010 rework; WO-0006/WO-0009 statuses stand conditionally on round-3 executed evidence covering the lock gate and branching. -->
 
 <!-- WO-0005/WO-0011/WO-0012 blockers resolved 2026-08-05 by D-0018, D-0019, D-0020 (user-delegated). WO-0005 awaits fresh-session re-validation with the D-0018 tooling. -->
