@@ -4,6 +4,12 @@ Validation closes the loop — and its stance is **refutation, not confirmation*
 
 Prefer a **fresh agent session** (or different agent) than the one that implemented — implementers grade themselves too kindly.
 
+Validators may build setups (harnesses, seeded DBs, local services) to produce executed evidence, with judgment, not haphazardly:
+
+- **Reuse before building.** If the project's dev stack (see Commands & stack in `AGENTS.md`) already provides the service, use it — don't spin up a parallel copy of something already running.
+- **Environments:** local/dev by default. Shared staging or test instances are fine where that's the project's stated practice — coordinate anything disruptive (resets, seed wipes) with the user first. Production only on explicit user instruction, never by default.
+- **Keep evidence repeatable.** A future validator must be able to repeat every check from the report alone. Where the check is code (harness, script), commit it (e.g. under a non-CI test tag) or embed it in the report; where it isn't (manual UI checks, live-service runs), record the procedure and the observations (steps, outputs, screenshots/logs). Evidence that can't be repeated is testimony — and re-validators trusting testimony is the confirmation habit validation exists to kill.
+
 ## Process
 
 For a work order with status `done` (for maintenance WOs — `implements: none` — verify the testing plan and summary objective instead of ACs):
