@@ -5,7 +5,7 @@ implements: [BRD-0001.N1, BRD-0003.N1]
 blueprint: BP-0001
 depends-on: none
 units-touched: []
-status: in-progress
+status: done
 ---
 
 # WO-0012: NFR coverage — operational simplicity and separation of concerns
@@ -61,3 +61,12 @@ Inspected every non-test UI file under `src/app` (excluding `src/app/api`) and `
 ### Verification
 
 `npm run lint`, `npm test` (23 files, 95 tests incl. the 3 new guard tests), and `npm run build` all pass on this branch.
+
+### Fix round 1 (2026-08-06, VAL-WO-0012 F1)
+
+Validation showed the token matcher missed the packages a developer would actually install for two products the guard names: `@zilliz/milvus2-sdk-node` (official Milvus JS client; tokenizes to `milvus2`, list had only `milvus`) and `vectordb` (LanceDB's real npm package). Fix, in `src/lib/dependency-guard.test.ts` only:
+
+- **Tokens added** — vector database: `milvus2`, `zilliz`, `vectordb`, `vector` (e.g. `@upstash/vector`); distributed processing: `kinesis` (managed streaming), `bee` (bee-queue), `agenda`; data warehouse: `duckdb` (embedded OLAP, treated as warehouse-class for the MVP); paid data API: `firecrawl`, `exa`, `serper`, `crawlbase` — the F1 minimum plus the breadth gaps VAL-WO-0012 documented.
+- **Injection cases now use real npm client names** (VAL-WO-0012's point — idealized names give false assurance): added `@zilliz/milvus2-sdk-node`, `vectordb`, `@upstash/vector`, `@aws-sdk/client-kinesis`, `bee-queue`, `agenda`, `duckdb`, `@mendable/firecrawl-js`, `exa-js`, `serper`, `crawlbase` to the per-category injection test.
+- Fail-loud design and exact-name allowlist unchanged; real `package.json` still passes (no new token collides with the 25 current dependencies).
+- Re-verified: `npm run lint`, `npm test` (23 files / 95 tests), `npm run build` all pass.

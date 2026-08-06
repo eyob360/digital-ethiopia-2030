@@ -47,9 +47,13 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
       "chromadb",
       "qdrant",
       "milvus",
+      "milvus2", // @zilliz/milvus2-sdk-node (official Milvus JS client, VAL-WO-0012 F1)
+      "zilliz",
       "pgvector",
       "faiss",
       "lancedb",
+      "vectordb", // LanceDB's actual npm package name (VAL-WO-0012 F1)
+      "vector", // e.g. @upstash/vector; benign hits go on the allowlist
       "vectra",
       "vespa",
       "marqo",
@@ -63,6 +67,7 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
       "kafka",
       "kafkajs",
       "rdkafka",
+      "kinesis", // e.g. @aws-sdk/client-kinesis (managed streaming)
       "spark",
       "flink",
       "hadoop",
@@ -71,6 +76,8 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
       "temporalio",
       "bull",
       "bullmq",
+      "bee", // bee-queue
+      "agenda",
       "celery",
       "amqplib",
       "rabbitmq",
@@ -83,7 +90,16 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
   {
     // BRD-0001.N1.AC1: "data warehouses"
     category: "data warehouse client",
-    tokens: ["snowflake", "bigquery", "redshift", "clickhouse", "databricks", "teradata", "athena"],
+    tokens: [
+      "snowflake",
+      "bigquery",
+      "redshift",
+      "clickhouse",
+      "databricks",
+      "teradata",
+      "athena",
+      "duckdb", // embedded OLAP — treated as warehouse-class for the MVP
+    ],
   },
   {
     // BRD-0001.N1.AC1: "paid data APIs other than the LLM API and the
@@ -99,6 +115,10 @@ const FORBIDDEN_CATEGORIES: ForbiddenCategory[] = [
       "brightdata",
       "diffbot",
       "zenrows",
+      "firecrawl", // e.g. @mendable/firecrawl-js
+      "exa", // exa-js
+      "serper",
+      "crawlbase",
     ],
   },
 ];
@@ -158,16 +178,30 @@ describe("dependency guard (BRD-0001.N1.AC1, D-0020) [WO-0012]", () => {
   });
 
   it("detects an injected package from each forbidden category", () => {
+    const paidApiCategory = "paid data API client (other than LLM and search provider, D-0020)";
+    // Real npm package names — the clients a developer would actually install
+    // (VAL-WO-0012: idealized names alone give false assurance).
     const injected: Array<[string, string]> = [
       ["@pinecone-database/pinecone", "vector database"],
       ["chromadb", "vector database"],
+      ["@zilliz/milvus2-sdk-node", "vector database"], // official Milvus client (F1)
+      ["vectordb", "vector database"], // LanceDB (F1)
+      ["@upstash/vector", "vector database"],
       ["kafkajs", "distributed processing framework"],
       ["node-rdkafka", "distributed processing framework"],
       ["@temporalio/client", "distributed processing framework"],
+      ["@aws-sdk/client-kinesis", "distributed processing framework"],
+      ["bee-queue", "distributed processing framework"],
+      ["agenda", "distributed processing framework"],
       ["snowflake-sdk", "data warehouse client"],
       ["@google-cloud/bigquery", "data warehouse client"],
       ["@clickhouse/client", "data warehouse client"],
-      ["serpapi", "paid data API client (other than LLM and search provider, D-0020)"],
+      ["duckdb", "data warehouse client"],
+      ["serpapi", paidApiCategory],
+      ["@mendable/firecrawl-js", paidApiCategory],
+      ["exa-js", paidApiCategory],
+      ["serper", paidApiCategory],
+      ["crawlbase", paidApiCategory],
     ];
 
     for (const [dependency, category] of injected) {
