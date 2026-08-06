@@ -7,3 +7,4 @@ Available:
 - [design-tokens.md](design-tokens.md) — semantic design tokens for UI-heavy projects
 - [design-system.md](design-system.md) — locked component library + state coverage for UI-heavy projects
 - [page-map.md](page-map.md) — route SSOT + pages-as-registry-units for web apps
+- [orchestrated-mode.md](orchestrated-mode.md) — orchestrator + subagents run the pipeline under a user-granted delegation scope
