@@ -4,8 +4,8 @@ title: Fallback search reachability for rejected observations
 implements: [BRD-0002.R1]
 blueprint: BP-0001
 depends-on: [WO-0009]
-units-touched: []
-status: ready
+units-touched: [UNIT-0038, UNIT-0039]
+status: done
 ---
 
 # WO-0010: Fallback search reachability for rejected observations

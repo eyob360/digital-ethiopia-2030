@@ -39,6 +39,7 @@ describe("n8n ingestion workflow export", () => {
         "OpenAI Relevance Gate",
         "OpenAI Structured Extraction",
         "Store Observation",
+        "Observation Accepted?",
         "Complete Pipeline Run",
       ]),
     );
@@ -108,13 +109,49 @@ describe("n8n ingestion workflow export", () => {
       expect.arrayContaining(["Complete Pipeline Run", "Mark Fallback Used"]),
     );
     expect(outgoingNodeNames("Mark Fallback Used")).toEqual(["OpenAI Query Generation"]);
-    expect(JSON.stringify(workflow.connections["Store Observation"])).toContain(
-      "Complete Pipeline Run",
+    expect(outgoingNodeNames("Store Observation")).toEqual(["Observation Accepted?"]);
+    expect(outgoingNodeNames("Observation Accepted?")).toEqual(
+      expect.arrayContaining(["Complete Pipeline Run", "More Priority URLs?"]),
+    );
+    expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
+      "sourceType: $json.sourceType",
+    );
+    expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
+      "candidateUrls: $json.candidateUrls",
+    );
+    expect(findNode("Validate Extraction JSON").parameters?.jsCode).toContain(
+      "priorityIndex: $json.priorityIndex",
     );
     expect(findNode("Expand KPI Batch").parameters?.jsCode).toContain("runId: $json.runId");
     expect(findNode("Expand KPI Batch").parameters?.jsCode).toContain("branchKey: kpi.id");
     expect(findNode("Complete Pipeline Run").parameters?.jsonBody).toContain('"runId"');
     expect(findNode("Complete Pipeline Run").parameters?.jsonBody).toContain('"branchKey"');
+  });
+
+  it("routes rejected priority observation candidates toward fallback search", () => {
+    expect(findNode("Store Observation").parameters?.jsonBody).toBe("={{$json}}");
+    expect(findNode("Observation Accepted?").parameters).toMatchObject({
+      conditions: {
+        string: [
+          {
+            value1: "={{$json.status}}",
+            operation: "equal",
+            value2: "inserted",
+          },
+        ],
+      },
+    });
+    expect(outgoingNodeNames("Observation Accepted?")).toEqual([
+      "Complete Pipeline Run",
+      "More Priority URLs?",
+    ]);
+    expect(outgoingNodeNames("More Priority URLs?")).toEqual(
+      expect.arrayContaining(["Increment Priority Index", "Fallback Already Used?"]),
+    );
+    expect(outgoingNodeNames("Fallback Already Used?")).toEqual(
+      expect.arrayContaining(["Complete Pipeline Run", "Mark Fallback Used"]),
+    );
+    expect(outgoingNodeNames("Mark Fallback Used")).toEqual(["OpenAI Query Generation"]);
   });
 
   it("uses the app raw-document endpoint as the document budget authority", () => {
